@@ -80,7 +80,16 @@
 
 ---
 
-## 🇵🇦 4. Datos Sintéticos Panameños
+## ⚡ 4. Rendimiento e Impacto en Dispositivos (Edge AI)
+Una de las mayores preocupaciones al ejecutar IA local en dispositivos móviles es el consumo de batería y memoria. **CajaLocal AI** está diseñado para ser altamente eficiente basándose en tres pilares:
+
+1. **Modelo Ultra-Ligero (Llama 3.2 1B Q4_0):** Utilizamos el modelo Llama 3.2 de 1 billón de parámetros, diseñado específicamente por Meta para *Edge Computing*. Al estar cuantizado a 4 bits, ocupa **menos de 1 GB de memoria RAM**, permitiendo que cualquier smartphone moderno gama media lo ejecute sin saturarse.
+2. **Delegación Peer-to-Peer (Tethering):** Aprovechando la cláusula *"delegada entre pares"* del reto, si un teléfono carece de recursos, QVAC delega el cómputo de la inferencia a un nodo cercano (como un kiosco de sucursal de Caja de Ahorros) en la misma red local. Los datos jamás van a la nube.
+3. **Ejecución On-Demand:** La IA no corre en segundo plano; solo utiliza ciclos de CPU/NPU cuando el usuario interactúa activamente en el chat, preservando la batería.
+
+---
+
+## 🇵🇦 5. Datos Sintéticos Panameños
 *Cumpliendo la regla del reto sobre no utilizar datos reales de clientes de ninguna entidad:*
 El proyecto incluye un generador y perfiles sintéticos realistas con comercios y transacciones típicas de Panamá:
 * **Supermercados:** Super 99, Riba Smith, El Machetazo.
@@ -95,10 +104,12 @@ El proyecto incluye un generador y perfiles sintéticos realistas con comercios 
 
 ---
 
-## 🚀 5. Guía de Instalación y Ejecución para el Jurado
+## 🚀 6. Guía de Instalación y Ejecución "De 1 Clic" para el Jurado
+
+Hemos facilitado el despliegue para que el jurado de Caja de Ahorros no necesite ejecutar configuraciones complejas.
 
 ### Requisitos Previos:
-* Node.js v18 o superior (probado en Node.js v24 LTS).
+* Node.js v18 o superior.
 * Git.
 
 ### Paso 1: Clonar e Instalar Dependencias
@@ -108,15 +119,17 @@ cd cashy
 npm install
 ```
 
-### Paso 2: Iniciar la Banca en Línea
-```bash
-npm start
-```
+### Paso 2: Iniciar Servidor (1 Clic)
+En Windows, simplemente haz doble clic en el archivo **`start.bat`**. 
+Este script levantará simultáneamente:
+1. El servidor local de inteligencia artificial QVAC (Cargando el modelo Llama 3.2 1B de forma privada en el puerto 11434).
+2. El servidor web de la aplicación (Banca en Línea en el puerto 3000).
+
 Abre tu navegador en: **`http://localhost:3000`**
 
 ---
 
-## 🧪 6. Suite de Auditoría Automatizada para el Jurado
+## 🧪 7. Suite de Auditoría Automatizada para el Jurado
 
 Para verificar de forma programática el cumplimiento técnico del reto, ejecuta:
 
@@ -135,12 +148,12 @@ Este comando ejecuta dos suites de auditoría:
 
 ---
 
-## 🎬 7. Video Demostrativo (Máximo 5 Minutos)
+## 🎬 8. Video Demostrativo (Máximo 5 Minutos)
 El guion detallado y la estructura para el video de presentación del jurado se encuentra disponible en:  
 👉 **[PITCH_AND_DEMO_SCRIPT.md](PITCH_AND_DEMO_SCRIPT.md)**
 
 ---
 
-## ⚖️ 8. Licencia
+## ⚖️ 9. Licencia
 Este proyecto está bajo la licencia [MIT](LICENSE).
 Propiedad intelectual y desarrollo original por el equipo participante del Reto Caja de Ahorros 2026.
