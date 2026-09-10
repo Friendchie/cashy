@@ -89,6 +89,34 @@ function initNavigation() {
   document.getElementById("brand-home-btn")?.addEventListener("click", () => {
     document.getElementById("nav-btn-productos")?.click();
   });
+
+  // Botones de accesos rápidos a QVAC
+  document.getElementById("btn-quick-advisor")?.addEventListener("click", () => {
+    document.getElementById("nav-btn-advisor")?.click();
+    document.getElementById("adv-tab-chat")?.click();
+  });
+
+  document.getElementById("btn-quick-hormiga")?.addEventListener("click", () => {
+    document.getElementById("nav-btn-advisor")?.click();
+    document.getElementById("adv-tab-hormiga")?.click();
+  });
+
+  document.getElementById("btn-quick-transfer")?.addEventListener("click", () => {
+    document.getElementById("nav-btn-transacciones")?.click();
+  });
+
+  document.getElementById("btn-banner-advisor")?.addEventListener("click", () => {
+    document.getElementById("nav-btn-advisor")?.click();
+    document.getElementById("adv-tab-budget")?.click();
+  });
+
+  // Toggle acordeón de cuentas
+  document.getElementById("btn-toggle-cuentas")?.addEventListener("click", () => {
+    const detail = document.getElementById("cuenta-detalle");
+    const chevron = document.getElementById("chevron-cuentas");
+    if (detail) detail.classList.toggle("hidden");
+    if (chevron) chevron.classList.toggle("rotate-180");
+  });
 }
 
 // ==========================================
