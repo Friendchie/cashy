@@ -1,7 +1,6 @@
 {
   "loggerConsoleOutput": true,
   "loggerLevel": "info",
-  "cacheDirectory": "./.qvac/models",
   "httpDownloadConcurrency": 3,
   "httpConnectionTimeoutMs": 10000,
   "serve": {
