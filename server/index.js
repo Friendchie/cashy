@@ -83,10 +83,9 @@ app.post("/api/analyze-custom", (req, res) => {
     return res.status(400).json({ success: false, error: "Formato de transacciones inválido o lista vacía." });
   }
 
-  currentTransactions = transactions;
-  currentMonthlyIncome = Number(monthlyIncome) || null;
-
-  const analysis = analyzeFinancialHealth(currentTransactions, currentMonthlyIncome);
+  const analysis = analyzeFinancialHealth(transactions, Number(monthlyIncome) || null);
+  currentTransactions = analysis.normalizedTransactions;
+  currentMonthlyIncome = Number(monthlyIncome) || analysis.summary.effectiveIncome;
 
   res.json({
     success: true,
@@ -95,7 +94,7 @@ app.post("/api/analyze-custom", (req, res) => {
       name: profileName || "Perfil Personalizado (Auditoría)",
       accountNumber: "CA-LOCAL-AUDIT-01",
       accountType: "Cuenta Local de Pruebas",
-      monthlyIncome: currentMonthlyIncome || analysis.summary.effectiveIncome,
+      monthlyIncome: currentMonthlyIncome,
       transactions: currentTransactions
     },
     analysis

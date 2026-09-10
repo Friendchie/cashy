@@ -50,11 +50,34 @@ function runFinancialTests() {
 
   console.log("  ✅ Pilares 60-25-15 clasificados y evaluados correctamente.");
 
-  console.log("\n[4/4] Probando integración de Productos de Caja de Ahorros...");
+  console.log("\n[4/5] Probando integración de Productos de Caja de Ahorros...");
   assert.ok(analysis.cajaDeAhorrosProducts.cuentaNavidena, "Debe existir opción de Cuenta Navideña");
   assert.ok(analysis.cajaDeAhorrosProducts.plazoFijo, "Debe existir opción de Plazo Fijo");
   assert.ok(analysis.cajaDeAhorrosProducts.metaHipotecaria, "Debe existir opción de Hipoteca Familiar");
   console.log("  ✅ Productos de Caja de Ahorros vinculados a la capacidad de ahorro rescatada.");
+
+  console.log("\n[5/5] Probando clasificación autónoma de transacciones en bruto (solo fecha, comercio y monto)...");
+  const rawTransactions = [
+    { date: "2026-09-01", merchant: "ACH Deposito Nomina Quincenal", amount: 1200.00 },
+    { date: "2026-09-02", merchant: "Cafeteria Unido Costa del Este", amount: 4.85 },
+    { date: "2026-09-02", merchant: "Super 99 Albrook", amount: 140.20 },
+    { date: "2026-09-03", merchant: "PedidosYa express", amount: 11.50 },
+    { date: "2026-09-04", merchant: "Naturgy Panama Electricidad", amount: 55.00 }
+  ];
+
+  const rawAnalysis = analyzeFinancialHealth(rawTransactions, 1200.00);
+
+  // Unido ($4.85) + PedidosYa ($11.50) deben ser detectados como gastos hormiga: $16.35
+  assert.strictEqual(rawAnalysis.gastosHormiga.totalMicroAmount, 16.35);
+  assert.strictEqual(rawAnalysis.gastosHormiga.microExpenseCount, 2);
+  
+  // Super 99 + Naturgy deben ser Necesidades: $140.20 + $55.00 = $195.20
+  assert.strictEqual(rawAnalysis.rule60_25_15.actual.necesidades, 195.20);
+  
+  // Unido + PedidosYa deben ser Deseos: $16.35
+  assert.strictEqual(rawAnalysis.rule60_25_15.actual.deseos, 16.35);
+
+  console.log("  ✅ Transacciones en bruto clasificadas automáticamente en Necesidades, Deseos y Gastos Hormiga.");
 
   console.log("\n============================================================");
   console.log("🎉 TODAS LAS PRUEBAS DE REGLAS FINANCIERAS PASARON EXITOSAMENTE");

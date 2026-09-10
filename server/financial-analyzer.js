@@ -33,11 +33,100 @@ const CATEGORY_MAPPING = {
   "Fondo de Emergencia": "ahorro"
 };
 
+/**
+ * Patrones semánticos y comercios panameños para clasificación autónoma
+ * de transacciones bancarias en bruto (fecha, comercio, monto).
+ */
+const MERCHANT_PATTERNS = [
+  // INGRESOS
+  { pattern: /nomina|salario|deposito|quincena|ach credito|planilla|honorarios|sueldo|pago quincenal/i, type: "income", category: "Ingresos" },
+
+  // NECESIDADES (Meta 60%)
+  { pattern: /super 99|riba smith|machetazo|pricesmart|super rey|romero|super xtra|supermercado|carniceria|fruteria|abasto/i, type: "expense", category: "Alimentación Básica" },
+  { pattern: /naturgy|ensa|idaan|tigo|mas movil|\+movil|cable onda|claro|cable & wireless|gas|aseo|electricidad|agua/i, type: "expense", category: "Servicios Básicos" },
+  { pattern: /alquiler|hipoteca|ph |condominio|inmobiliaria|arriendo|residencia|apartamento/i, type: "expense", category: "Vivienda" },
+  { pattern: /metro de panama|metrobus|panapass|terpel|delta|texaco|puma|combustible|gasolina|peaje/i, type: "expense", category: "Transporte" },
+  { pattern: /farmacia|arrocha|metro|javillo|clinica|hospital|laboratorio|doctor|medico|medicamento/i, type: "expense", category: "Salud" },
+  { pattern: /colegio|escuela|universidad|matricula|mensualidad escolar|educacion/i, type: "expense", category: "Educación" },
+
+  // DESEOS (Meta 25%)
+  { pattern: /cafe|cafeteria|unido|kotowa|starbucks|juan valdez|duran|bakery|panaderia|latte|capuccino/i, type: "expense", category: "Café y Bebidas" },
+  { pattern: /pedidosya|uber eats|asap|appetito|delivery/i, type: "expense", category: "Delivery Comida" },
+  { pattern: /kiosco|momi|dulceria|cinnabon|dairy queen|paleta|gelati|snacks|vending|dulces|chucherias/i, type: "expense", category: "Snacks / Kiosco" },
+  { pattern: /mcdonald|wendy|kfc|burger king|popeyes|pizza|subway|taco bell|fridays|doraditos|papas/i, type: "expense", category: "Delivery Comida" },
+  { pattern: /restaurante|bar|la rana dorada|cerveceria|pub|discoteca|cine|cinepolis|cinemark|salida/i, type: "expense", category: "Ocio / Salidas" },
+  { pattern: /zara|h&m|albrook mall|multiplaza|doit center|felix|stevens|compras|tienda/i, type: "expense", category: "Compras Varias" },
+  { pattern: /uber|didi|cabify|taxi/i, type: "expense", category: "Transporte Opcional" },
+  { pattern: /netflix|spotify|disney|apple|prime video|youtube|hbo|max|suscripcion/i, type: "expense", category: "Suscripciones Digitales" },
+
+  // AHORRO (Meta 15%)
+  { pattern: /caja de ahorros|ahorro|plazo fijo|inversion|fondo de emergencia/i, type: "expense", category: "Ahorro" }
+];
+
 const DAY_NAMES = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
 /**
+ * Normaliza y clasifica automáticamente una transacción bancaria en bruto (incluso si solo tiene fecha, comercio y monto).
+ */
+export function normalizeTransaction(rawTx, index = 0, microThreshold = 15.00) {
+  const merchantName = (rawTx.merchant || rawTx.description || rawTx.detalle || rawTx.name || "Comercio no especificado").trim();
+  const rawAmount = Number(rawTx.amount ?? rawTx.monto ?? 0);
+  const amount = Math.abs(rawAmount);
+
+  // Fecha por defecto si no viene
+  let date = rawTx.date || rawTx.fecha || new Date().toISOString().split("T")[0];
+
+  // Si ya venía clasificada manualmente
+  let type = rawTx.type;
+  let category = rawTx.category;
+
+  // Clasificación inteligente basada en comercio
+  if (!type || !category) {
+    for (const rule of MERCHANT_PATTERNS) {
+      if (rule.pattern.test(merchantName)) {
+        if (!type) type = rule.type;
+        if (!category) category = rule.category;
+        break;
+      }
+    }
+
+    // Si aún no se clasifica el tipo:
+    if (!type) {
+      // Si el monto original era positivo mayor a $200 y no coincide con gastos, o contiene "abono", "deposito"
+      type = (rawAmount > 0 && rawTx.isDeposit) ? "income" : "expense";
+    }
+
+    // Si aún no se clasifica la categoría:
+    if (!category) {
+      if (type === "income") {
+        category = "Ingresos";
+      } else {
+        // En egresos no identificados: si es menor a $15 tiende a ser microgasto/kiosco/antojo
+        category = (amount <= microThreshold) ? "Snacks / Kiosco" : "Compras Varias";
+      }
+    }
+  }
+
+  // Detección automática de Gasto Hormiga:
+  // Es gasto, pertenece al pilar de Deseos (o microgasto evidente) y es menor o igual a $15
+  const pillar = CATEGORY_MAPPING[category] || (type === "income" ? "ingreso" : "deseos");
+  const isMicroExpense = rawTx.isMicroExpense ?? (type === "expense" && pillar === "deseos" && amount <= microThreshold);
+
+  return {
+    id: rawTx.id || `tx-norm-${index + 1}`,
+    date,
+    merchant: merchantName,
+    amount,
+    category,
+    type,
+    isMicroExpense
+  };
+}
+
+/**
  * Analiza el historial de transacciones y devuelve un diagnóstico financiero completo.
- * @param {Array} transactions Lista de transacciones
+ * Soporta transacciones en bruto con solo fecha, comercio y monto.
+ * @param {Array} transactions Lista de transacciones (en bruto o preclasificadas)
  * @param {number} monthlyIncome Ingreso mensual de referencia (opcional)
  * @param {number} microThreshold Umbral para considerar un gasto hormiga (por defecto $15.00)
  */
@@ -60,7 +149,10 @@ export function analyzeFinancialHealth(transactions, monthlyIncome = null, micro
   let weekdayMicroSum = 0; // Lunes a Jueves
   let weekendMicroSum = 0; // Viernes a Domingo
 
-  for (const tx of transactions) {
+  // Normalizar y clasificar cada transacción automáticamente
+  const normalizedTransactions = (transactions || []).map((tx, idx) => normalizeTransaction(tx, idx, microThreshold));
+
+  for (const tx of normalizedTransactions) {
     if (tx.type === "income") {
       totalIncome += tx.amount;
       continue;
@@ -200,7 +292,8 @@ export function analyzeFinancialHealth(transactions, monthlyIncome = null, micro
       }
     },
     cajaDeAhorrosProducts,
-    expensesByCategory
+    expensesByCategory,
+    normalizedTransactions
   };
 }
 
