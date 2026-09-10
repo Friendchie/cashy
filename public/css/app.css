@@ -1,0 +1,72 @@
+/**
+ * app.css
+ * Estilos complementarios para la Banca en Línea de Caja de Ahorros y CajaLocal AI.
+ */
+
+/* Active tab state */
+.tab-btn.active-tab {
+  border-color: #059669 !important; /* emerald-600 */
+  color: #047857 !important; /* emerald-700 */
+  font-weight: 700;
+}
+
+/* Custom smooth scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Chat Bubbles */
+.chat-bubble-user {
+  background-color: #0A2540;
+  color: #ffffff;
+  border-bottom-right-radius: 2px;
+}
+
+.chat-bubble-ai {
+  background-color: #ffffff;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+  border-bottom-left-radius: 2px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Markdown styling inside AI chat responses */
+.chat-bubble-ai p {
+  margin-bottom: 0.5rem;
+}
+.chat-bubble-ai p:last-child {
+  margin-bottom: 0;
+}
+.chat-bubble-ai strong {
+  color: #0f172a;
+}
+.chat-bubble-ai ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+.chat-bubble-ai li {
+  margin-bottom: 0.25rem;
+}
+
+/* Pulse animation for privacy badge */
+@keyframes softPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.75; transform: scale(1.02); }
+}
+
+.privacy-badge-pulse {
+  animation: softPulse 3s infinite ease-in-out;
+}

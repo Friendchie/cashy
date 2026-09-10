@@ -1,0 +1,16 @@
+{
+  "loggerConsoleOutput": true,
+  "loggerLevel": "info",
+  "cacheDirectory": "./.qvac/models",
+  "httpDownloadConcurrency": 3,
+  "httpConnectionTimeoutMs": 10000,
+  "serve": {
+    "models": {
+      "llama-3.2-1b": {
+        "model": "LLAMA_3_2_1B_INST_Q4_0",
+        "default": true,
+        "preload": false
+      }
+    }
+  }
+}

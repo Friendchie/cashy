@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# QVAC & AI Models Cache (Prevent heavy GGUF files in Git)
+.qvac/
+models/
+*.gguf
+*.bin
+*.pt
+
+# Logs & Telemetry
+logs/
+*.log
+npm-debug.log*
+
+# Environment & Temp files
+.env
+.env.local
+.DS_Store
+Thumbs.db
+dist/
+scratch/

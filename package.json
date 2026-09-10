@@ -1,0 +1,32 @@
+{
+  "name": "cajalocal-ai",
+  "version": "1.0.0",
+  "description": "Asesor Financiero Local y Descentralizado para la Banca en Línea de Caja de Ahorros con QVAC SDK",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
+    "test": "node tests/run-all-tests.js",
+    "test:audit": "node tests/audit-privacy.test.js",
+    "test:financial": "node tests/financial-rules.test.js"
+  },
+  "keywords": [
+    "caja-de-ahorros",
+    "qvac",
+    "tether",
+    "local-ai",
+    "on-device-inference",
+    "financial-advisor",
+    "privacy-first",
+    "gastos-hormiga",
+    "60-25-15-budget"
+  ],
+  "author": "CajaLocal AI Team",
+  "license": "MIT",
+  "dependencies": {
+    "@qvac/sdk": "^0.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}

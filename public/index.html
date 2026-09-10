@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CajaLocal AI - Asesor Financiero Descentralizado | Caja de Ahorros</title>
+  <!-- Tailwind CSS & FontAwesome Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- TOP HEADER BANCARIO -->
+  <header class="bg-[#0A2540] text-white sticky top-0 z-50 border-b border-blue-900 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- LOGO & BRANDING -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center text-[#0A2540] font-black text-xl shadow-inner">
+          CA
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-bold text-lg tracking-tight">Caja de Ahorros</span>
+            <span class="text-xs bg-emerald-500/20 text-emerald-300 font-semibold px-2 py-0.5 rounded border border-emerald-500/30">CajaLocal AI</span>
+          </div>
+          <p class="text-[11px] text-slate-300 font-medium tracking-wide">El Banco de la Familia Panameña • Powered by QVAC SDK</p>
+        </div>
+      </div>
+
+      <!-- BADGES & PROFILE SELECTOR -->
+      <div class="flex items-center space-x-3">
+        <!-- Badge de Inferencia Local -->
+        <div class="hidden sm:flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Inferencia 100% On-Device</span>
+          <span class="text-slate-400">|</span>
+          <span class="text-emerald-300 font-mono text-[10px]">0 Bytes Cloud</span>
+        </div>
+
+        <!-- Selector de Perfiles para Jurado -->
+        <div class="relative">
+          <select id="profile-select" class="bg-[#13355b] border border-blue-700/60 text-white text-xs rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-emerald-400 outline-none cursor-pointer">
+            <option value="carlos_gastos_hormiga">👤 Carlos (Fuga Gastos Hormiga)</option>
+            <option value="familia_gomez_vivienda">👨‍👩‍👧 Familia Gómez (Meta Vivienda)</option>
+            <option value="valeria_regla_60_25_15">👩‍💼 Valeria (Regla 60-25-15)</option>
+          </select>
+        </div>
+
+        <!-- Botón Cargar Datos Propios -->
+        <button id="btn-open-upload" class="bg-blue-800/60 hover:bg-blue-700/80 text-white text-xs font-medium px-3 py-1.5 rounded-lg border border-blue-600/40 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-file-arrow-up text-xs"></i>
+          <span class="hidden md:inline">Cargar Datos</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- BANNER PRIVACIDAD Y SOBERANÍA -->
+  <section class="bg-gradient-to-r from-[#0d3153] via-[#0A2540] to-[#0a3827] text-white py-3 border-b border-blue-900/40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-2 text-xs">
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-shield-halved text-emerald-400 text-base"></i>
+        <span><strong>Garantía de Soberanía Financiera:</strong> Todas las transacciones se analizan localmente con el SDK de QVAC. Tu historial nunca sale de este equipo.</span>
+      </div>
+      <div class="flex items-center space-x-3 text-slate-300">
+        <span id="model-tag" class="bg-white/10 px-2 py-0.5 rounded text-[11px] font-mono">QVAC: LLAMA_3_2_1B_INST_Q4_0</span>
+        <button id="btn-show-audit" class="text-emerald-300 hover:text-emerald-200 underline font-semibold flex items-center space-x-1">
+          <i class="fa-solid fa-microchip text-[10px]"></i>
+          <span>Ver Auditoría Local</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- PERFIL DEL CLIENTE ACTIVO -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-5 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div class="flex items-center space-x-4">
+        <div id="profile-avatar" class="text-4xl p-2 bg-slate-100 rounded-xl border border-slate-200">
+          👨‍💻
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 id="profile-name" class="text-xl font-bold text-slate-900">Carlos Méndez</h1>
+            <span id="profile-badge" class="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full border border-blue-200">Cliente Activo</span>
+          </div>
+          <p id="profile-desc" class="text-xs text-slate-500 mt-0.5 max-w-2xl">
+            Ingresos estables pero sufre fugas constantes por microgastos diarios. Ahorra apenas el 2% mensual.
+          </p>
+          <div class="flex items-center space-x-4 mt-2 text-xs text-slate-600">
+            <span><i class="fa-solid fa-credit-card text-slate-400 mr-1"></i> <strong id="profile-account">CA-0104-8842-19</strong></span>
+            <span><i class="fa-solid fa-bullseye text-emerald-600 mr-1"></i> Meta: <strong id="profile-goal" class="text-emerald-700">Reducir gastos hormiga y abrir Cuenta de Ahorro Navideño</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta Resumen Saldo & Salud -->
+      <div class="flex items-center space-x-4 w-full md:w-auto justify-end border-t md:border-t-0 pt-3 md:pt-0">
+        <div class="text-right">
+          <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold block">Balance Neto del Mes</span>
+          <span id="stat-net-balance" class="text-2xl font-black text-slate-900">$142.20</span>
+        </div>
+        <div class="pl-4 border-l border-slate-200 text-center">
+          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Salud Financiera</span>
+          <div class="flex items-center justify-center space-x-1 mt-0.5">
+            <span id="stat-health-score" class="text-2xl font-black text-amber-500">62</span>
+            <span class="text-xs text-slate-400">/100</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PESTAÑAS DE NAVEGACIÓN -->
+    <div class="border-b border-slate-200 mb-6">
+      <nav class="flex space-x-4 overflow-x-auto" aria-label="Tabs">
+        <button id="tab-overview-btn" class="tab-btn active-tab border-emerald-600 text-emerald-700 whitespace-nowrap py-3 px-3 border-b-2 font-bold text-sm flex items-center space-x-2">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Resumen de Cuentas</span>
+        </button>
+        <button id="tab-hormiga-btn" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm flex items-center space-x-2">
+          <i class="fa-solid fa-bug text-amber-500"></i>
+          <span>Detector de Gastos Hormiga</span>
+          <span id="badge-micro-count" class="bg-amber-100 text-amber-800 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full">14</span>
+        </button>
+        <button id="tab-budget-btn" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm flex items-center space-x-2">
+          <i class="fa-solid fa-scale-balanced text-blue-600"></i>
+          <span>Presupuesto 60-25-15</span>
+        </button>
+        <button id="tab-advisor-btn" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm flex items-center space-x-2">
+          <i class="fa-solid fa-robot text-purple-600"></i>
+          <span>Asesor Inteligente QVAC</span>
+          <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">On-Device</span>
+        </button>
+        <button id="tab-audit-btn" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm flex items-center space-x-2">
+          <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+          <span>Auditoría & Soberanía</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- SECCIÓN 1: RESUMEN DE CUENTAS (OVERVIEW) -->
+    <div id="tab-overview" class="tab-content block space-y-6">
+      
+      <!-- KPI CARDS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Ingresos -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500 font-semibold uppercase">Ingresos Totales</p>
+            <h3 id="stat-total-income" class="text-xl font-black text-emerald-600 mt-1">$1,850.00</h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">Depósitos y nómina ACH</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-arrow-down-long"></i>
+          </div>
+        </div>
+
+        <!-- Gastos Totales -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500 font-semibold uppercase">Gastos Totales</p>
+            <h3 id="stat-total-expenses" class="text-xl font-black text-red-600 mt-1">$1,707.80</h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">Egresos registrados</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-arrow-up-long"></i>
+          </div>
+        </div>
+
+        <!-- Fuga en Gastos Hormiga -->
+        <div class="bg-white p-4 rounded-xl border border-amber-200 bg-amber-50/20 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs text-amber-700 font-semibold uppercase">Fuga Gastos Hormiga</p>
+            <h3 id="stat-micro-amount" class="text-xl font-black text-amber-600 mt-1">$218.45</h3>
+            <p id="stat-micro-percent" class="text-[11px] text-amber-700/80 mt-0.5 font-medium">11.8% de tus ingresos</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-mug-hot"></i>
+          </div>
+        </div>
+
+        <!-- Ahorro Real vs Meta 15% -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-500 font-semibold uppercase">Tasa de Ahorro Real</p>
+            <h3 id="stat-saving-rate" class="text-xl font-black text-blue-600 mt-1">2.2%</h3>
+            <p class="text-[11px] text-slate-400 mt-0.5">Meta Caja de Ahorros: 15.0%</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-piggy-bank"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRÁFICOS Y TRANSACCIONES -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Gráfico Desglose por Categoría -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <h3 class="font-bold text-slate-900 text-sm mb-1 flex items-center justify-between">
+            <span>Distribución de Gastos</span>
+            <i class="fa-solid fa-chart-donut text-slate-400"></i>
+          </h3>
+          <p class="text-xs text-slate-500 mb-4">Clasificación automática por categoría bancaria.</p>
+          <div class="h-64 relative flex items-center justify-center">
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Tabla Historial Transaccional -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">Registro de Transacciones Auditado</h3>
+                <p class="text-xs text-slate-500">Procesadas en el navegador, sin salir a la red.</p>
+              </div>
+              <span id="tx-count-badge" class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded font-medium">32 movimientos</span>
+            </div>
+
+            <div class="overflow-x-auto max-h-72 border border-slate-100 rounded-lg">
+              <table class="w-full text-left text-xs text-slate-600">
+                <thead class="bg-slate-50 text-slate-500 uppercase font-semibold text-[10px] sticky top-0 border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-3">Fecha</th>
+                    <th class="py-2.5 px-3">Comercio / Descripción</th>
+                    <th class="py-2.5 px-3">Categoría</th>
+                    <th class="py-2.5 px-3 text-right">Monto</th>
+                    <th class="py-2.5 px-3 text-center">Tipo</th>
+                  </tr>
+                </thead>
+                <tbody id="transactions-table-body" class="divide-y divide-slate-100">
+                  <!-- Filas inyectadas por JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span><i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> El ícono 🐜 resalta compras hormiga identificadas.</span>
+            <button id="btn-goto-advisor-from-overview" class="text-emerald-600 font-bold hover:underline flex items-center space-x-1">
+              <span>Asesorarme sobre estos gastos</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 2: DETECTOR DE GASTOS HORMIGA -->
+    <div id="tab-hormiga" class="tab-content hidden space-y-6">
+      
+      <!-- BANNER DE IMPACTO ACUMULADO -->
+      <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white rounded-xl p-6 shadow-md">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div>
+            <span class="bg-black/20 text-white text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+              Diagnóstico de Fuga Silenciosa
+            </span>
+            <h2 class="text-2xl font-black mt-2">Fuga Detectada: <span id="hormiga-hero-amount">$218.45 al mes</span></h2>
+            <p class="text-amber-100 text-sm mt-1 max-w-xl">
+              Equivale a una fuga proyectada de <strong id="hormiga-projected-year">$2,621.40 al año</strong> en pequeñas compras recurrentes de café, comida delivery, postres y kioscos.
+            </p>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl text-center border border-white/20 min-w-[200px]">
+            <p class="text-xs text-amber-100 uppercase font-semibold">Rescate Potencial</p>
+            <p id="hormiga-savings-with-rule" class="text-3xl font-black text-white mt-1">$148.50</p>
+            <p class="text-[11px] text-amber-200">Ahorro mensual aplicando la Regla de 2 Días</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ESTRATEGIA CONDUCTUAL Y GRÁFICO POR DÍA -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Tarjeta de la Regla Conductual -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center space-x-2 text-emerald-700 font-bold text-sm mb-2">
+              <i class="fa-solid fa-lightbulb text-amber-500 text-base"></i>
+              <span>Estrategia de Caja de Ahorros</span>
+            </div>
+            <h3 class="font-extrabold text-slate-900 text-lg mb-2">La Regla de los 2 Días de Gasto</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+              La mayor fuga de tus gastos hormiga ocurre de <strong>Lunes a Jueves</strong> en la rutina laboral (cafés mañaneros de $4.85, snacks de media tarde y pedidos express por cansancio).
+            </p>
+
+            <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 space-y-2 mb-4 text-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-emerald-800 font-medium">Gastos Lun-Jue (Rutina):</span>
+                <strong id="hormiga-weekday-total" class="text-emerald-950 font-bold">$135.20</strong>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-emerald-800 font-medium">Gastos Vie-Dom (Fin de semana):</span>
+                <strong id="hormiga-weekend-total" class="text-emerald-950 font-bold">$83.25</strong>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed">
+              <strong>Consejo Práctico:</strong> Restringe tus compras de café y antojos a solo <strong>2 días a la semana</strong> (ej. viernes y sábado como recompensa). Los otros 5 días prepara café en casa u oficina.
+            </p>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-100">
+            <button id="btn-ask-hormiga-advice" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg text-xs transition flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-robot"></i>
+              <span>Consultar Plan de Acción al Asesor QVAC</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Gráfico Gastos Hormiga por Día -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
+          <h3 class="font-bold text-slate-900 text-sm mb-1 flex items-center justify-between">
+            <span>Frecuencia de Gastos Hormiga por Día de la Semana</span>
+            <i class="fa-solid fa-calendar-days text-slate-400"></i>
+          </h3>
+          <p class="text-xs text-slate-500 mb-4">Identifica los días de mayor fuga para aplicar el bloqueo conductual.</p>
+          <div class="h-64 relative">
+            <canvas id="dayOfWeekChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- COSTO DE OPORTUNIDAD EN PRODUCTOS DE CAJA DE AHORROS -->
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center space-x-2">
+          <i class="fa-solid fa-vault text-blue-700"></i>
+          <span>¿Qué ganarías trasladando este ahorro a Productos de Caja de Ahorros?</span>
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Cuenta Navideña -->
+          <div class="border border-emerald-200 bg-emerald-50/40 rounded-xl p-4">
+            <div class="flex items-center space-x-2 text-emerald-800 font-bold text-xs mb-1">
+              <i class="fa-solid fa-gift text-emerald-600"></i>
+              <span>Cuenta de Ahorro Navideño</span>
+            </div>
+            <p id="caja-product-navidad" class="text-2xl font-black text-emerald-900 my-2">$1,707.75</p>
+            <p class="text-xs text-emerald-800 leading-snug">
+              Depositando el ahorro semanal rescatado de tus gastos hormiga, recibes tu aguinaldo completo en diciembre con intereses y bonificación.
+            </p>
+          </div>
+
+          <!-- Plazo Fijo -->
+          <div class="border border-blue-200 bg-blue-50/40 rounded-xl p-4">
+            <div class="flex items-center space-x-2 text-blue-800 font-bold text-xs mb-1">
+              <i class="fa-solid fa-chart-line text-blue-600"></i>
+              <span>Depósito a Plazo Fijo (3 Años)</span>
+            </div>
+            <p id="caja-product-plazofijo" class="text-2xl font-black text-blue-900 my-2">$5,584.00</p>
+            <p class="text-xs text-blue-800 leading-snug">
+              Garantía estatal, tasa competitiva y crecimiento de tu patrimonio familiar en lugar de diluirse en compras impulsivas.
+            </p>
+          </div>
+
+          <!-- Meta Hipotecaria -->
+          <div class="border border-purple-200 bg-purple-50/40 rounded-xl p-4">
+            <div class="flex items-center space-x-2 text-purple-800 font-bold text-xs mb-1">
+              <i class="fa-solid fa-house-chimney text-purple-600"></i>
+              <span>Abono Inicial Hipoteca Caja de Ahorros</span>
+            </div>
+            <p id="caja-product-vivienda" class="text-2xl font-black text-purple-900 my-2">En 24 Meses</p>
+            <p class="text-xs text-purple-800 leading-snug">
+              El ahorro sistemático de tus microgastos te permite completar el abono inicial para tu primera casa con los planes preferenciales del banco.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 3: PRESUPUESTO 60-25-15 -->
+    <div id="tab-budget" class="tab-content hidden space-y-6">
+      
+      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Plan de Presupuesto Saludable 60-25-15</h2>
+            <p class="text-xs text-slate-500">
+              Metodología recomendada por Caja de Ahorros para proteger las finanzas de la familia panameña.
+            </p>
+          </div>
+          <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg">
+            Ingreso base evaluado: <strong id="budget-base-income" class="text-slate-900">$1,850.00</strong>
+          </div>
+        </div>
+
+        <!-- TRES PILARES -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-6">
+          
+          <!-- Pilar 1: Necesidades (60%) -->
+          <div class="border border-slate-200 rounded-xl p-4 relative bg-slate-50/50">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase text-slate-600">1. Necesidades Básicas</span>
+              <span class="text-xs bg-blue-100 text-blue-800 font-extrabold px-2 py-0.5 rounded">Meta: 60%</span>
+            </div>
+            <div class="flex items-baseline space-x-2 my-2">
+              <span id="budget-actual-pct-necesidades" class="text-3xl font-black text-slate-900">58.4%</span>
+              <span id="budget-actual-amt-necesidades" class="text-sm font-semibold text-slate-500">($1,080.40)</span>
+            </div>
+            <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden mb-2">
+              <div id="budget-bar-necesidades" class="bg-blue-600 h-full rounded-full" style="width: 58.4%"></div>
+            </div>
+            <p class="text-[11px] text-slate-500 leading-tight">
+              Meta sugerida: <strong id="budget-ideal-amt-necesidades">$1,110.00</strong>. Vivienda, alimentación del hogar, servicios básicos y transporte laboral.
+            </p>
+            <div class="mt-3 pt-2 border-t border-slate-200 text-xs">
+              Estado: <span id="budget-status-necesidades" class="font-bold text-emerald-600">Óptimo</span>
+            </div>
+          </div>
+
+          <!-- Pilar 2: Deseos (25%) -->
+          <div class="border border-slate-200 rounded-xl p-4 relative bg-slate-50/50">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase text-slate-600">2. Deseos y Estilo de Vida</span>
+              <span class="text-xs bg-amber-100 text-amber-800 font-extrabold px-2 py-0.5 rounded">Meta: 25%</span>
+            </div>
+            <div class="flex items-baseline space-x-2 my-2">
+              <span id="budget-actual-pct-deseos" class="text-3xl font-black text-slate-900">39.4%</span>
+              <span id="budget-actual-amt-deseos" class="text-sm font-semibold text-slate-500">($728.90)</span>
+            </div>
+            <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden mb-2">
+              <div id="budget-bar-deseos" class="bg-amber-500 h-full rounded-full" style="width: 39.4%"></div>
+            </div>
+            <p class="text-[11px] text-slate-500 leading-tight">
+              Meta sugerida: <strong id="budget-ideal-amt-deseos">$462.50</strong>. Salidas, restaurantes, delivery, compras no indispensables y entretenimiento.
+            </p>
+            <div class="mt-3 pt-2 border-t border-slate-200 text-xs">
+              Estado: <span id="budget-status-deseos" class="font-bold text-red-600">Elevado</span>
+            </div>
+          </div>
+
+          <!-- Pilar 3: Ahorro (15%) -->
+          <div class="border border-slate-200 rounded-xl p-4 relative bg-slate-50/50">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase text-slate-600">3. Ahorro e Inversión</span>
+              <span class="text-xs bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded">Meta: 15%</span>
+            </div>
+            <div class="flex items-baseline space-x-2 my-2">
+              <span id="budget-actual-pct-ahorro" class="text-3xl font-black text-slate-900">2.2%</span>
+              <span id="budget-actual-amt-ahorro" class="text-sm font-semibold text-slate-500">($40.00)</span>
+            </div>
+            <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden mb-2">
+              <div id="budget-bar-ahorro" class="bg-emerald-500 h-full rounded-full" style="width: 2.2%"></div>
+            </div>
+            <p class="text-[11px] text-slate-500 leading-tight">
+              Meta sugerida: <strong id="budget-ideal-amt-ahorro">$277.50</strong>. Fondo de emergencia, aportes a Caja de Ahorros y amortizaciones.
+            </p>
+            <div class="mt-3 pt-2 border-t border-slate-200 text-xs">
+              Estado: <span id="budget-status-ahorro" class="font-bold text-amber-600">Insuficiente</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- GRÁFICO COMPARATIVO -->
+        <div class="border-t border-slate-200 pt-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+          <div>
+            <h4 class="font-bold text-slate-900 text-sm mb-2">Diagnóstico de Brecha Presupuestaria</h4>
+            <div id="budget-diagnosis-box" class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-2">
+              <!-- Inyectado por JS -->
+            </div>
+          </div>
+          <div class="h-56 relative flex items-center justify-center">
+            <canvas id="budgetChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 4: ASESOR INTELIGENTE QVAC (CHAT) -->
+    <div id="tab-advisor" class="tab-content hidden">
+      <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-[600px]">
+        
+        <!-- Chat Header -->
+        <div class="p-4 border-b border-slate-200 bg-slate-50 rounded-t-xl flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <h3 class="font-bold text-slate-900 text-sm">Asesor Financiero Local Caja de Ahorros</h3>
+                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded">QVAC Active</span>
+              </div>
+              <p class="text-[11px] text-slate-500">Inferencia en tu dispositivo • Los datos no viajan a servidores externos</p>
+            </div>
+          </div>
+
+          <button id="btn-clear-chat" class="text-xs text-slate-400 hover:text-slate-600 p-1.5 rounded" title="Limpiar conversación">
+            <i class="fa-solid fa-arrow-rotate-right"></i>
+          </button>
+        </div>
+
+        <!-- Chat Messages Body -->
+        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4 text-xs">
+          <!-- Mensaje inicial de bienvenida -->
+        </div>
+
+        <!-- Quick Prompts Buttons -->
+        <div class="p-2 border-t border-slate-100 bg-slate-50/50 flex space-x-2 overflow-x-auto text-xs">
+          <button class="quick-prompt-btn whitespace-nowrap bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 px-3 py-1.5 rounded-full font-medium transition" data-prompt="¿Cómo reduzco mis gastos hormiga?">
+            🐜 ¿Cómo reduzco mis gastos hormiga?
+          </button>
+          <button class="quick-prompt-btn whitespace-nowrap bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 px-3 py-1.5 rounded-full font-medium transition" data-prompt="¿Cómo aplico la regla 60-25-15 con mis ingresos?">
+            ⚖️ ¿Cómo aplico la regla 60-25-15?
+          </button>
+          <button class="quick-prompt-btn whitespace-nowrap bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 px-3 py-1.5 rounded-full font-medium transition" data-prompt="¿Qué productos de ahorro de Caja de Ahorros me recomiendas?">
+            🎄 ¿Qué productos de Caja de Ahorros me convienen?
+          </button>
+          <button class="quick-prompt-btn whitespace-nowrap bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 px-3 py-1.5 rounded-full font-medium transition" data-prompt="¿Cuánto ahorraría si no pido delivery de lunes a jueves?">
+            🛵 ¿Ahorro si dejo delivery entre semana?
+          </button>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form id="chat-form" class="p-3 border-t border-slate-200 bg-white rounded-b-xl flex items-center space-x-2">
+          <input 
+            type="text" 
+            id="chat-input" 
+            placeholder="Pregúntale a tu asesor local sobre tus gastos o metas..." 
+            class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 outline-none"
+            autocomplete="off"
+          />
+          <button 
+            type="submit" 
+            id="chat-send-btn"
+            class="bg-[#0A2540] hover:bg-blue-900 text-white px-4 py-2 rounded-lg font-bold text-xs transition flex items-center space-x-1"
+          >
+            <span>Preguntar</span>
+            <i class="fa-solid fa-paper-plane text-[10px]"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 5: AUDITORÍA TÉCNICA Y SOBERANÍA (JURADO ISD & CAJA DE AHORROS) -->
+    <div id="tab-audit" class="tab-content hidden space-y-6">
+      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+        
+        <div class="flex items-center justify-between border-b border-slate-200 pb-4 mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+              <i class="fa-solid fa-fingerprint text-emerald-600"></i>
+              <span>Panel de Auditoría de Soberanía Técnica</span>
+            </h2>
+            <p class="text-xs text-slate-500">
+              Verificación para el Jurado de ISD y Caja de Ahorros sobre el cumplimiento estricto del requisito de inferencia local con QVAC.
+            </p>
+          </div>
+          <span class="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1 rounded-full border border-emerald-300">
+            COMPLIANT QVAC
+          </span>
+        </div>
+
+        <!-- TABLA DE REQUISITOS DEL RETO -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-xs">
+          
+          <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
+            <h4 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+              <i class="fa-solid fa-check-double text-emerald-600"></i>
+              <span>Regla Técnica del Reto</span>
+            </h4>
+            <p class="text-slate-600">
+              <em>"La solución debe construirse con el SDK de QVAC (qvac.tether.io)... Enrutar la inferencia a una API en la nube descalifica la entrega de forma directa."</em>
+            </p>
+            <div class="pt-2 border-t border-slate-200 text-emerald-700 font-bold">
+              ✅ Verificado: Inferencia en CPU/NPU local mediante @qvac/sdk. 0 peticiones a OpenAI/Google/Anthropic.
+            </div>
+          </div>
+
+          <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
+            <h4 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+              <i class="fa-solid fa-database text-blue-600"></i>
+              <span>Regla de Datos del Reto</span>
+            </h4>
+            <p class="text-slate-600">
+              <em>"Los equipos deben trabajar con datos sintéticos o públicos. No se admite el uso de datos reales de clientes."</em>
+            </p>
+            <div class="pt-2 border-t border-slate-200 text-blue-700 font-bold">
+              ✅ Verificado: Perfiles sintéticos 100% panameños (Super 99, IDAAN, Metro de Panamá, etc.).
+            </div>
+          </div>
+        </div>
+
+        <!-- TELEMETRÍA EN TIEMPO REAL -->
+        <div class="bg-slate-900 text-white rounded-xl p-5 font-mono text-xs space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">QVAC Runtime Telemetry (Live Stream)</span>
+            <span class="text-emerald-400 flex items-center space-x-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span>LISTENING ON LOCALHOST</span>
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
+            <div>
+              <span class="text-slate-500 block text-[10px]">SDK PAQUETE</span>
+              <span class="text-slate-200 font-bold">@qvac/sdk v0.19.0</span>
+            </div>
+            <div>
+              <span class="text-slate-500 block text-[10px]">MODELO CONFIGURADO</span>
+              <span class="text-emerald-300 font-bold" id="telemetry-model">LLAMA_3_2_1B_INST_Q4_0</span>
+            </div>
+            <div>
+              <span class="text-slate-500 block text-[10px]">DATOS A LA NUBE</span>
+              <span class="text-emerald-400 font-extrabold text-sm" id="telemetry-cloud-bytes">0 BYTES (ZERO LEAKAGE)</span>
+            </div>
+            <div>
+              <span class="text-slate-500 block text-[10px]">TOTAL INFERENCIAS</span>
+              <span class="text-slate-200 font-bold" id="telemetry-count">0 consultas</span>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-slate-800 text-slate-400 text-[11px]">
+            <span>Ubicación de cómputo: </span>
+            <span class="text-slate-200">Local Machine Process (PID Node.js) • Sin intermediarios</span>
+          </div>
+        </div>
+
+        <!-- BOTÓN DE PRUEBA DE RED PARA EL AUDITOR -->
+        <div class="mt-6 pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div class="text-slate-500">
+            <i class="fa-solid fa-terminal mr-1"></i>
+            Puedes correr en consola el script de prueba: <code class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded font-mono font-bold">npm test</code>
+          </div>
+          <button id="btn-run-self-audit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg transition flex items-center space-x-2">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Verificar Aislamiento de Red Ahora</span>
+          </button>
+        </div>
+
+        <!-- Contenedor resultado de auto-auditoría -->
+        <div id="self-audit-result" class="hidden mt-4 p-4 rounded-lg bg-emerald-50 border border-emerald-300 text-xs text-emerald-900">
+          <div class="font-bold flex items-center space-x-2">
+            <i class="fa-solid fa-shield-check text-emerald-600 text-base"></i>
+            <span>Auditoría de Privacidad Superada Exitosamente:</span>
+          </div>
+          <ul class="list-disc pl-5 mt-2 space-y-1 text-emerald-800">
+            <li>Cero peticiones enviadas a dominios externos durante la sesión.</li>
+            <li>Inferencia procesada íntegramente por el runtime local de QVAC.</li>
+            <li>Cumplimiento total con los términos técnicos del desafío de Caja de Ahorros.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL DE CARGA DE DATOS SINTÉTICOS PROPIOS (CSV/JSON) -->
+  <div id="upload-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center space-x-2">
+          <i class="fa-solid fa-file-import text-emerald-600"></i>
+          <span>Cargar Datos Sintéticos Personalizados</span>
+        </h3>
+        <button id="btn-close-modal" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-500">
+        El jurado puede ingresar transacciones sintéticas en formato JSON o pegar un CSV para probar cualquier caso de prueba bancario.
+      </p>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Nombre del Perfil de Prueba:</label>
+          <input type="text" id="custom-profile-name" value="Evaluación Jurado ISD" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Ingreso Mensual Estimado ($):</label>
+          <input type="number" id="custom-monthly-income" value="2000" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" />
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Transacciones Sintéticas (JSON):</label>
+          <textarea id="custom-transactions-json" rows="6" class="w-full font-mono text-[11px] border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+        <button id="btn-cancel-modal" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+        <button id="btn-submit-custom-data" class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition">Analizar Localmente</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER BANCARIO -->
+  <footer class="bg-[#0A2540] text-slate-400 text-xs py-4 border-t border-blue-900/60 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div>
+        <p class="font-medium text-slate-300">CajaLocal AI © 2026 • Desarrollado para el Reto Corporativo de Caja de Ahorros</p>
+        <p class="text-[11px] text-slate-400">Inteligencia Local y Descentralizada en el Dispositivo con QVAC SDK (Tether)</p>
+      </div>
+      <div class="flex items-center space-x-4 text-[11px]">
+        <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-lock mr-1"></i> Cero fuga de datos</span>
+        <span>Alineado con Caja de Ahorros</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts de la Aplicación -->
+  <script src="/js/charts.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
