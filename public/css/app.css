@@ -1,16 +1,107 @@
 /**
  * app.css
- * Estilos complementarios para la Banca en Línea de Caja de Ahorros y CajaLocal AI.
+ * Estilos oficiales inspirados en la Banca en Línea y App Móvil de Caja de Ahorros Panamá.
  */
 
-/* Active tab state */
-.tab-btn.active-tab {
-  border-color: #059669 !important; /* emerald-600 */
-  color: #047857 !important; /* emerald-700 */
+:root {
+  --ca-blue: #004f98;
+  --ca-blue-dark: #003666;
+  --ca-blue-light: #e8f1fa;
+  --ca-yellow: #ffb81c;
+  --ca-green: #00a86b;
+  --ca-gray-bg: #f5f7fa;
+  --ca-card-border: #e2e8f0;
+}
+
+body {
+  background-color: var(--ca-gray-bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #1e293b;
+}
+
+/* Header & Nav */
+.ca-header {
+  background-color: var(--ca-blue);
+}
+
+.ca-nav-item {
+  position: relative;
+  font-weight: 500;
+  color: #475569;
+  transition: all 0.2s ease;
+  padding-bottom: 0.75rem;
+}
+
+.ca-nav-item:hover {
+  color: var(--ca-blue);
+}
+
+.ca-nav-item.active {
+  color: var(--ca-blue);
   font-weight: 700;
 }
 
-/* Custom smooth scrollbar */
+.ca-nav-item.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--ca-yellow);
+  border-radius: 2px 2px 0 0;
+}
+
+/* Tarjetas de Producto estilo Caja de Ahorros */
+.ca-product-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.ca-product-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+}
+
+/* Botones de Accesos Rápidos estilo Caja de Ahorros */
+.ca-quick-btn {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0.75rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.ca-quick-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px 0 rgba(0, 79, 152, 0.1);
+  border-color: #93c5fd;
+}
+
+/* Chat Bubbles */
+.chat-bubble-user {
+  background-color: var(--ca-blue);
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble-ai {
+  background-color: #ffffff;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+}
+
+/* Scrollbar estilizada */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -24,49 +115,4 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
-}
-
-/* Chat Bubbles */
-.chat-bubble-user {
-  background-color: #0A2540;
-  color: #ffffff;
-  border-bottom-right-radius: 2px;
-}
-
-.chat-bubble-ai {
-  background-color: #ffffff;
-  color: #1e293b;
-  border: 1px solid #e2e8f0;
-  border-bottom-left-radius: 2px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-/* Markdown styling inside AI chat responses */
-.chat-bubble-ai p {
-  margin-bottom: 0.5rem;
-}
-.chat-bubble-ai p:last-child {
-  margin-bottom: 0;
-}
-.chat-bubble-ai strong {
-  color: #0f172a;
-}
-.chat-bubble-ai ul {
-  list-style-type: disc;
-  padding-left: 1.25rem;
-  margin-top: 0.25rem;
-  margin-bottom: 0.5rem;
-}
-.chat-bubble-ai li {
-  margin-bottom: 0.25rem;
-}
-
-/* Pulse animation for privacy badge */
-@keyframes softPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.75; transform: scale(1.02); }
-}
-
-.privacy-badge-pulse {
-  animation: softPulse 3s infinite ease-in-out;
 }

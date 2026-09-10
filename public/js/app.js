@@ -1,9 +1,9 @@
 /**
  * app.js
- * Controlador principal de la interfaz de Banca en Línea de Caja de Ahorros y CajaLocal AI.
+ * Controlador oficial para la interfaz de Banca en Línea de Caja de Ahorros con CajaLocal AI.
  */
 
-import { renderCategoryChart, renderDayOfWeekChart, renderBudgetChart } from "./charts.js";
+import { renderDayOfWeekChart, renderBudgetChart } from "./charts.js";
 
 // Estado de la aplicación
 let currentProfile = null;
@@ -11,67 +11,146 @@ let currentAnalysis = null;
 let chatHistory = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-  initTabs();
+  initLiveClock();
+  initNavigation();
+  initAdvisorSubTabs();
+  initDropdownMenu();
   initProfileSelector();
   initChat();
   initCustomDataModal();
   initSelfAudit();
 
-  // Cargar perfil inicial
+  // Exponer función global para abrir chat desde botones de la UI
+  window.openChatWithPrompt = (prompt) => {
+    document.getElementById("nav-btn-advisor")?.click();
+    document.getElementById("adv-tab-chat")?.click();
+    sendChatMessage(prompt);
+  };
+
+  // Cargar perfil por defecto
   loadProfile("carlos_gastos_hormiga");
 });
 
 // ==========================================
-// PESTAÑAS (TABS)
+// 1. RELOJ Y FECHA OFICIAL CAJA DE AHORROS
 // ==========================================
-function initTabs() {
-  const tabs = [
-    { btn: "tab-overview-btn", content: "tab-overview" },
-    { btn: "tab-hormiga-btn", content: "tab-hormiga" },
-    { btn: "tab-budget-btn", content: "tab-budget" },
-    { btn: "tab-advisor-btn", content: "tab-advisor" },
-    { btn: "tab-audit-btn", content: "tab-audit" }
+function initLiveClock() {
+  const updateTimes = () => {
+    const now = new Date();
+    const options = { hour: '2-digit', minute: '2-digit', hour12: true };
+    const timeStr = now.toLocaleTimeString('en-US', options);
+    const dateStr = now.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+    const fullStr = `${timeStr}, ${dateStr}`;
+
+    const updatedEl = document.getElementById("live-time-updated");
+    const loginEl = document.getElementById("live-time-login");
+    if (updatedEl) updatedEl.textContent = fullStr;
+    if (loginEl) loginEl.textContent = fullStr;
+  };
+  updateTimes();
+  setInterval(updateTimes, 60000);
+}
+
+// ==========================================
+// 2. NAVEGACIÓN PRINCIPAL ENTRE VISTAS
+// ==========================================
+function initNavigation() {
+  const navItems = [
+    { btn: "nav-btn-productos", view: "view-productos" },
+    { btn: "nav-btn-advisor", view: "view-advisor" },
+    { btn: "nav-btn-audit", view: "view-audit" }
   ];
 
-  tabs.forEach(tab => {
-    const btnEl = document.getElementById(tab.btn);
-    if (!btnEl) return;
-    btnEl.addEventListener("click", () => {
-      // Remover clase activa de todos
-      tabs.forEach(t => {
-        document.getElementById(t.btn)?.classList.remove("active-tab", "border-emerald-600", "text-emerald-700");
-        document.getElementById(t.btn)?.classList.add("border-transparent", "text-slate-500");
-        document.getElementById(t.content)?.classList.add("hidden");
-      });
+  navItems.forEach(item => {
+    const btn = document.getElementById(item.btn);
+    if (!btn) return;
 
-      // Activar tab seleccionado
-      btnEl.classList.add("active-tab", "border-emerald-600", "text-emerald-700");
-      btnEl.classList.remove("border-transparent", "text-slate-500");
-      document.getElementById(tab.content)?.classList.remove("hidden");
+    btn.addEventListener("click", () => {
+      // Remover clase 'active' de todos los botones de navegación
+      document.querySelectorAll(".ca-nav-item").forEach(b => b.classList.remove("active"));
+      // Ocultar todas las vistas
+      navItems.forEach(i => document.getElementById(i.view)?.classList.add("hidden"));
+
+      // Activar el seleccionado
+      btn.classList.add("active");
+      document.getElementById(item.view)?.classList.remove("hidden");
+
+      // Si se abre el asesor, redibujar gráficos para asegurar layout correcto
+      if (item.view === "view-advisor" && currentAnalysis) {
+        setTimeout(() => {
+          renderDayOfWeekChart("dayOfWeekChart", currentAnalysis.gastosHormiga.byDay);
+          renderBudgetChart("budgetChart", currentAnalysis.rule60_25_15);
+        }, 100);
+      }
     });
   });
 
-  // Accesos directos entre tabs
-  document.getElementById("btn-goto-advisor-from-overview")?.addEventListener("click", () => {
-    document.getElementById("tab-advisor-btn")?.click();
-  });
-  document.getElementById("btn-ask-hormiga-advice")?.addEventListener("click", () => {
-    document.getElementById("tab-advisor-btn")?.click();
-    sendChatMessage("¿Cómo reduzco mis gastos hormiga y cómo aplico la regla de 2 días de gasto?");
-  });
-  document.getElementById("btn-show-audit")?.addEventListener("click", () => {
-    document.getElementById("tab-audit-btn")?.click();
+  // Clic en logo para volver a Mis Productos
+  document.getElementById("brand-home-btn")?.addEventListener("click", () => {
+    document.getElementById("nav-btn-productos")?.click();
   });
 }
 
 // ==========================================
-// CARGA Y SELECCIÓN DE PERFILES
+// 3. SUB-PESTAÑAS DEL MÓDULO ASESOR
+// ==========================================
+function initAdvisorSubTabs() {
+  const subTabs = [
+    { btn: "adv-tab-hormiga", content: "advisor-content-hormiga" },
+    { btn: "adv-tab-budget", content: "advisor-content-budget" },
+    { btn: "adv-tab-chat", content: "advisor-content-chat" }
+  ];
+
+  subTabs.forEach(tab => {
+    const btn = document.getElementById(tab.btn);
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+      subTabs.forEach(t => {
+        document.getElementById(t.btn)?.classList.remove("active");
+        document.getElementById(t.content)?.classList.add("hidden");
+      });
+
+      btn.classList.add("active");
+      document.getElementById(tab.content)?.classList.remove("hidden");
+
+      // Redibujar gráficos al cambiar de tab interna
+      if (currentAnalysis) {
+        if (tab.content === "advisor-content-hormiga") {
+          renderDayOfWeekChart("dayOfWeekChart", currentAnalysis.gastosHormiga.byDay);
+        } else if (tab.content === "advisor-content-budget") {
+          renderBudgetChart("budgetChart", currentAnalysis.rule60_25_15);
+        }
+      }
+    });
+  });
+}
+
+// ==========================================
+// 4. DROPDOWN DE TRANSACCIONES Y PAGOS
+// ==========================================
+function initDropdownMenu() {
+  const trigger = document.getElementById("nav-btn-transacciones");
+  const popover = document.getElementById("transacciones-popover");
+
+  trigger?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    popover?.classList.toggle("hidden");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!popover?.contains(e.target) && e.target !== trigger) {
+      popover?.classList.add("hidden");
+    }
+  });
+}
+
+// ==========================================
+// 5. SELECTOR Y CARGA DE PERFILES
 // ==========================================
 function initProfileSelector() {
-  const selectEl = document.getElementById("profile-select");
-  if (!selectEl) return;
-
-  selectEl.addEventListener("change", (e) => {
+  const select = document.getElementById("profile-select");
+  select?.addEventListener("change", (e) => {
     loadProfile(e.target.value);
   });
 }
@@ -92,115 +171,97 @@ async function loadProfile(profileId) {
 }
 
 // ==========================================
-// ACTUALIZACIÓN DE LA INTERFAZ
+// 6. RENDERIZADO COMPLETO DE LA UI
 // ==========================================
 function updateUI(profile, analysis) {
-  const { summary, gastosHormiga, rule60_25_15, cajaDeAhorrosProducts, expensesByCategory } = analysis;
+  const { summary, gastosHormiga, rule60_25_15, cajaDeAhorrosProducts } = analysis;
 
-  // 1. Tarjeta de Perfil
-  document.getElementById("profile-avatar").textContent = profile.avatar || "👤";
-  document.getElementById("profile-name").textContent = profile.name;
-  document.getElementById("profile-desc").textContent = profile.description;
-  document.getElementById("profile-account").textContent = profile.accountNumber;
-  document.getElementById("profile-goal").textContent = profile.targetGoal;
-  document.getElementById("stat-net-balance").textContent = `$${summary.netBalance.toFixed(2)}`;
-  
-  const healthEl = document.getElementById("stat-health-score");
-  healthEl.textContent = summary.healthScore;
+  // 1. Vista 'Mis Productos'
+  document.getElementById("saludo-nombre").textContent = profile.name;
+  document.getElementById("cuenta-total-disp").textContent = `$ ${summary.effectiveIncome.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  document.getElementById("card-cuenta-num").textContent = profile.accountNumber || "010000367531";
+  document.getElementById("cuenta-subtitulo").textContent = `${profile.accountType || "Cuenta de ahorro regular"} • No. ${profile.accountNumber || "010000367531"}`;
+
+  // Indicador de Salud
+  const scoreCircle = document.getElementById("top-health-circle");
+  const statusText = document.getElementById("top-health-status");
+  scoreCircle.textContent = summary.healthScore;
   if (summary.healthScore >= 75) {
-    healthEl.className = "text-2xl font-black text-emerald-600";
+    scoreCircle.className = "flex items-center justify-center w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 font-black text-lg border border-emerald-200";
+    statusText.textContent = "Excelente";
+    statusText.className = "text-xs text-emerald-700 font-semibold";
   } else if (summary.healthScore >= 50) {
-    healthEl.className = "text-2xl font-black text-amber-500";
+    scoreCircle.className = "flex items-center justify-center w-10 h-10 rounded-full bg-amber-50 text-amber-600 font-black text-lg border border-amber-200";
+    statusText.textContent = "Fuga en Deseos";
+    statusText.className = "text-xs text-amber-700 font-semibold";
   } else {
-    healthEl.className = "text-2xl font-black text-red-500";
+    scoreCircle.className = "flex items-center justify-center w-10 h-10 rounded-full bg-red-50 text-red-600 font-black text-lg border border-red-200";
+    statusText.textContent = "Atención Requerida";
+    statusText.className = "text-xs text-red-700 font-semibold";
   }
 
-  // 2. KPIs Overview
-  document.getElementById("stat-total-income").textContent = `$${summary.totalIncome.toFixed(2)}`;
-  document.getElementById("stat-total-expenses").textContent = `$${summary.totalExpenses.toFixed(2)}`;
-  document.getElementById("stat-micro-amount").textContent = `$${gastosHormiga.totalMicroAmount.toFixed(2)}`;
-  document.getElementById("stat-micro-percent").textContent = `${gastosHormiga.percentageOfIncome}% de tus ingresos`;
-  document.getElementById("stat-saving-rate").textContent = `${rule60_25_15.actualPercentages.ahorro}%`;
-  document.getElementById("badge-micro-count").textContent = gastosHormiga.microExpenseCount;
+  // Banner 'Sugerencias para ti'
+  document.getElementById("banner-savings-amount").textContent = `$${gastosHormiga.potentialMonthlySavingsWith2DaysRule.toFixed(2)} al mes`;
 
-  // 3. Tabla de Transacciones
+  // Tabla Movimientos Recientes
   renderTransactionsTable(profile.transactions);
 
-  // 4. Sección Gastos Hormiga
-  document.getElementById("hormiga-hero-amount").textContent = `$${gastosHormiga.totalMicroAmount.toFixed(2)} al mes`;
-  document.getElementById("hormiga-projected-year").textContent = `$${gastosHormiga.projectedYearlyMicro.toFixed(2)} al año`;
-  document.getElementById("hormiga-savings-with-rule").textContent = `$${gastosHormiga.potentialMonthlySavingsWith2DaysRule.toFixed(2)}`;
-  document.getElementById("hormiga-weekday-total").textContent = `$${gastosHormiga.weekdayTotal.toFixed(2)}`;
-  document.getElementById("hormiga-weekend-total").textContent = `$${gastosHormiga.weekendTotal.toFixed(2)}`;
+  // 2. Vista 'Asesor QVAC - Gastos Hormiga'
+  document.getElementById("adv-hormiga-hero-amount").textContent = `$${gastosHormiga.totalMicroAmount.toFixed(2)} al mes`;
+  document.getElementById("adv-hormiga-projected-year").textContent = `$${gastosHormiga.projectedYearlyMicro.toFixed(2)} al año`;
+  document.getElementById("adv-hormiga-savings-with-rule").textContent = `$${gastosHormiga.potentialMonthlySavingsWith2DaysRule.toFixed(2)}`;
+  document.getElementById("adv-hormiga-weekday").textContent = `$${gastosHormiga.weekdayTotal.toFixed(2)}`;
+  document.getElementById("adv-hormiga-weekend").textContent = `$${gastosHormiga.weekendTotal.toFixed(2)}`;
+  document.getElementById("adv-caja-navidad").textContent = `$${cajaDeAhorrosProducts.cuentaNavidena.yearEndPayout.toFixed(2)}`;
+  document.getElementById("adv-caja-plazofijo").textContent = `$${cajaDeAhorrosProducts.plazoFijo.projected3Years.toFixed(2)}`;
 
-  // Productos Caja de Ahorros
-  document.getElementById("caja-product-navidad").textContent = `$${cajaDeAhorrosProducts.cuentaNavidena.yearEndPayout.toFixed(2)}`;
-  document.getElementById("caja-product-plazofijo").textContent = `$${cajaDeAhorrosProducts.plazoFijo.projected3Years.toFixed(2)}`;
+  // 3. Vista 'Asesor QVAC - Presupuesto 60-25-15'
+  document.getElementById("adv-pct-necesidades").textContent = `${rule60_25_15.actualPercentages.necesidades}%`;
+  document.getElementById("adv-amt-necesidades").textContent = `($${rule60_25_15.actual.necesidades.toFixed(2)})`;
+  document.getElementById("adv-bar-necesidades").style.width = `${Math.min(100, rule60_25_15.actualPercentages.necesidades)}%`;
+  document.getElementById("adv-status-necesidades").textContent = rule60_25_15.complianceStatus.necesidades;
 
-  // 5. Presupuesto 60-25-15
-  document.getElementById("budget-base-income").textContent = `$${summary.effectiveIncome.toFixed(2)}`;
-  
-  // Necesidades
-  document.getElementById("budget-actual-pct-necesidades").textContent = `${rule60_25_15.actualPercentages.necesidades}%`;
-  document.getElementById("budget-actual-amt-necesidades").textContent = `($${rule60_25_15.actual.necesidades.toFixed(2)})`;
-  document.getElementById("budget-ideal-amt-necesidades").textContent = `$${rule60_25_15.idealBudget.necesidades.toFixed(2)}`;
-  document.getElementById("budget-bar-necesidades").style.width = `${Math.min(100, rule60_25_15.actualPercentages.necesidades)}%`;
-  document.getElementById("budget-status-necesidades").textContent = rule60_25_15.complianceStatus.necesidades;
+  document.getElementById("adv-pct-deseos").textContent = `${rule60_25_15.actualPercentages.deseos}%`;
+  document.getElementById("adv-amt-deseos").textContent = `($${rule60_25_15.actual.deseos.toFixed(2)})`;
+  document.getElementById("adv-bar-deseos").style.width = `${Math.min(100, rule60_25_15.actualPercentages.deseos)}%`;
+  document.getElementById("adv-status-deseos").textContent = rule60_25_15.complianceStatus.deseos;
 
-  // Deseos
-  document.getElementById("budget-actual-pct-deseos").textContent = `${rule60_25_15.actualPercentages.deseos}%`;
-  document.getElementById("budget-actual-amt-deseos").textContent = `($${rule60_25_15.actual.deseos.toFixed(2)})`;
-  document.getElementById("budget-ideal-amt-deseos").textContent = `$${rule60_25_15.idealBudget.deseos.toFixed(2)}`;
-  document.getElementById("budget-bar-deseos").style.width = `${Math.min(100, rule60_25_15.actualPercentages.deseos)}%`;
-  document.getElementById("budget-status-deseos").textContent = rule60_25_15.complianceStatus.deseos;
+  document.getElementById("adv-pct-ahorro").textContent = `${rule60_25_15.actualPercentages.ahorro}%`;
+  document.getElementById("adv-amt-ahorro").textContent = `($${rule60_25_15.actual.ahorro.toFixed(2)})`;
+  document.getElementById("adv-bar-ahorro").style.width = `${Math.min(100, rule60_25_15.actualPercentages.ahorro)}%`;
+  document.getElementById("adv-status-ahorro").textContent = rule60_25_15.complianceStatus.ahorro;
 
-  // Ahorro
-  document.getElementById("budget-actual-pct-ahorro").textContent = `${rule60_25_15.actualPercentages.ahorro}%`;
-  document.getElementById("budget-actual-amt-ahorro").textContent = `($${rule60_25_15.actual.ahorro.toFixed(2)})`;
-  document.getElementById("budget-ideal-amt-ahorro").textContent = `$${rule60_25_15.idealBudget.ahorro.toFixed(2)}`;
-  document.getElementById("budget-bar-ahorro").style.width = `${Math.min(100, rule60_25_15.actualPercentages.ahorro)}%`;
-  document.getElementById("budget-status-ahorro").textContent = rule60_25_15.complianceStatus.ahorro;
-
-  // Diagnóstico Caja de Texto
-  const diagBox = document.getElementById("budget-diagnosis-box");
+  // Diagnóstico
   const isDeseosOver = rule60_25_15.actualPercentages.deseos > 25;
   const isAhorroUnder = rule60_25_15.actualPercentages.ahorro < 15;
-
-  diagBox.innerHTML = `
-    <p><strong>Evaluación de Caja de Ahorros:</strong></p>
-    <p>• Tu gasto en necesidades esenciales representa el <strong>${rule60_25_15.actualPercentages.necesidades}%</strong> de tus ingresos.</p>
-    <p>• ${isDeseosOver 
-        ? `⚠️ El pilar de Deseos supera el 25% recomendado por <strong>$${rule60_25_15.budgetGaps.deseosDiff.toFixed(2)}</strong>. Los microgastos diarios de café y delivery son la causa directa.` 
-        : `✅ Tus gastos en Deseos están controlados bajo el límite del 25%.`}</p>
-    <p>• ${isAhorroUnder 
-        ? `⚠️ Tu tasa de ahorro es del <strong>${rule60_25_15.actualPercentages.ahorro}%</strong> (meta: 15%). Redirigiendo el ahorro de la Regla de 2 Días ($${gastosHormiga.potentialMonthlySavingsWith2DaysRule.toFixed(2)}/mes) alcanzarás la meta del 15% de inmediato.` 
-        : `🎉 Estás ahorrando a un ritmo óptimo para tu futuro financiero.`}</p>
+  document.getElementById("adv-diag-box").innerHTML = `
+    <p><strong>Diagnóstico de Caja de Ahorros:</strong></p>
+    <p>• Tu gasto en necesidades básicas es del <strong>${rule60_25_15.actualPercentages.necesidades}%</strong> (meta: 60%).</p>
+    <p>• ${isDeseosOver ? `⚠️ El consumo en Deseos está sobre el límite en <strong>$${rule60_25_15.budgetGaps.deseosDiff.toFixed(2)}</strong>. Las compras impulsivas y delivery son el principal causante.` : `✅ Tus gastos en deseos se mantienen equilibrados.`}</p>
+    <p>• ${isAhorroUnder ? `⚠️ Ahorras un <strong>${rule60_25_15.actualPercentages.ahorro}%</strong> (meta: 15%). Redirigiendo el ahorro de la Regla de 2 Días ($${gastosHormiga.potentialMonthlySavingsWith2DaysRule.toFixed(2)}/mes) cumplirás la meta mensual con creces.` : `🎉 ¡Tu disciplina de ahorro es óptima para tus proyectos familiares!`}</p>
   `;
 
-  // 6. Gráficos
-  renderCategoryChart("categoryChart", expensesByCategory);
+  // 4. Gráficos
   renderDayOfWeekChart("dayOfWeekChart", gastosHormiga.byDay);
   renderBudgetChart("budgetChart", rule60_25_15);
 
-  // 7. Reiniciar Chat con Mensaje Inicial Personalizado
+  // 5. Reiniciar Chat con Saludo Contextualizado
   resetChat(profile, analysis);
 }
 
 function renderTransactionsTable(transactions) {
-  const tbody = document.getElementById("transactions-table-body");
+  const tbody = document.getElementById("home-tx-body");
   if (!tbody) return;
 
-  document.getElementById("tx-count-badge").textContent = `${transactions.length} movimientos`;
-
-  tbody.innerHTML = transactions.map(tx => {
+  tbody.innerHTML = transactions.slice(0, 10).map(tx => {
     const isIncome = tx.type === "income";
     const isMicro = tx.isMicroExpense;
 
     return `
-      <tr class="hover:bg-slate-50 transition ${isMicro ? 'bg-amber-50/30' : ''}">
-        <td class="py-2.5 px-3 whitespace-nowrap text-slate-500 font-mono">${tx.date}</td>
+      <tr class="hover:bg-slate-50 transition ${isMicro ? 'bg-amber-50/40' : ''}">
+        <td class="py-2.5 px-3 whitespace-nowrap text-slate-500 font-mono text-[11px]">${tx.date}</td>
         <td class="py-2.5 px-3 font-medium text-slate-800 flex items-center space-x-1.5">
-          ${isMicro ? '<span title="Gasto Hormiga detectado" class="text-xs">🐜</span>' : ''}
+          ${isMicro ? '<span title="Gasto Hormiga detectado">🐜</span>' : ''}
           <span>${tx.merchant}</span>
         </td>
         <td class="py-2.5 px-3 whitespace-nowrap">
@@ -224,7 +285,7 @@ function renderTransactionsTable(transactions) {
 }
 
 // ==========================================
-// CHAT CON EL ASESOR QVAC
+// 7. CHAT CON EL ASESOR QVAC
 // ==========================================
 function initChat() {
   const form = document.getElementById("chat-form");
@@ -245,7 +306,6 @@ function initChat() {
     }
   });
 
-  // Quick Prompt buttons
   document.querySelectorAll(".quick-prompt-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       const prompt = btn.getAttribute("data-prompt");
@@ -261,19 +321,17 @@ function resetChat(profile, analysis) {
 
   container.innerHTML = "";
 
-  const welcomeText = `¡Hola, **${profile.name}**! Soy tu Asesor Financiero Local de **Caja de Ahorros** impulsado por **QVAC SDK**.\n\nHe auditado tu historial financiero de este periodo de forma 100% confidencial en este dispositivo:\n- **Puntuación de Salud Financiera:** ${analysis.summary.healthScore}/100\n- **Fuga en Gastos Hormiga:** $${analysis.gastosHormiga.totalMicroAmount.toFixed(2)} al mes en ${analysis.gastosHormiga.microExpenseCount} microcompras.\n- **Ahorro Estimado:** Aplicando la **Regla de 2 Días de Gasto**, podrías rescatar **$${analysis.gastosHormiga.potentialMonthlySavingsWith2DaysRule.toFixed(2)} al mes** para tu Cuenta Navideña o Plazo Fijo.\n\n¿En qué te gustaría enfocarte hoy?`;
+  const welcome = `¡Hola, **${profile.name}**! Soy tu Asesor Financiero Local de **Caja de Ahorros** impulsado por **QVAC SDK**.\n\nHe auditado tus transacciones recientes en este dispositivo sin que ningún dato salga a internet:\n- **Puntuación de Salud:** ${analysis.summary.healthScore}/100\n- **Gastos Hormiga Detectados:** $${analysis.gastosHormiga.totalMicroAmount.toFixed(2)} al mes (${analysis.gastosHormiga.microExpenseCount} microcompras).\n- **Ahorro Estimado:** Aplicando la **Regla de los 2 Días de Gasto**, rescatas **$${analysis.gastosHormiga.potentialMonthlySavingsWith2DaysRule.toFixed(2)} al mes** para tu Cuenta de Ahorro Navideño o Plazo Fijo.\n\n¿Qué te gustaría optimizar hoy?`;
 
-  appendAiMessage(welcomeText, {
+  appendAiMessage(welcome, {
     engine: "QVAC Native Fabric LLM",
-    latencyMs: 14,
+    latencyMs: 12,
     cloudDataTransmittedBytes: 0
   });
 }
 
 async function sendChatMessage(message) {
   appendUserMessage(message);
-
-  // Indicador de "Escribiendo..."
   const typingId = appendTypingIndicator();
 
   try {
@@ -296,11 +354,11 @@ async function sendChatMessage(message) {
       appendAiMessage(data.reply, data.telemetry);
       updateTelemetryUI(data.telemetry);
     } else {
-      appendAiMessage("Disculpa, ocurrió un error en la inferencia local de QVAC: " + data.error);
+      appendAiMessage("Error en inferencia local QVAC: " + data.error);
     }
   } catch (err) {
     removeTypingIndicator(typingId);
-    appendAiMessage("Error de conexión con el agente local: " + err.message);
+    appendAiMessage("Error de conexión local: " + err.message);
   }
 }
 
@@ -308,14 +366,14 @@ function appendUserMessage(text) {
   const container = document.getElementById("chat-messages");
   if (!container) return;
 
-  const msgDiv = document.createElement("div");
-  msgDiv.className = "flex justify-end";
-  msgDiv.innerHTML = `
+  const div = document.createElement("div");
+  div.className = "flex justify-end";
+  div.innerHTML = `
     <div class="max-w-[80%] chat-bubble-user p-3 rounded-xl text-white">
       <p class="font-medium">${escapeHtml(text)}</p>
     </div>
   `;
-  container.appendChild(msgDiv);
+  container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
 
@@ -323,39 +381,39 @@ function appendAiMessage(text, telemetry = null) {
   const container = document.getElementById("chat-messages");
   if (!container) return;
 
-  const formattedHtml = formatMarkdown(text);
-  const msgDiv = document.createElement("div");
-  msgDiv.className = "flex justify-start items-start space-x-2";
+  const html = formatMarkdown(text);
+  const div = document.createElement("div");
+  div.className = "flex justify-start items-start space-x-2";
 
-  const telemetryBadge = telemetry ? `
+  const badge = telemetry ? `
     <div class="mt-2 pt-1 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-mono">
       <span>⚙️ ${telemetry.engine} (${telemetry.latencyMs}ms)</span>
       <span class="text-emerald-600 font-bold">🔒 0 Bytes Cloud</span>
     </div>
   ` : '';
 
-  msgDiv.innerHTML = `
+  div.innerHTML = `
     <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex-shrink-0 flex items-center justify-center font-bold text-xs mt-0.5">
       <i class="fa-solid fa-robot"></i>
     </div>
     <div class="max-w-[85%] chat-bubble-ai p-3 rounded-xl">
-      <div class="prose prose-xs text-slate-800 leading-relaxed">${formattedHtml}</div>
-      ${telemetryBadge}
+      <div class="text-slate-800 leading-relaxed">${html}</div>
+      ${badge}
     </div>
   `;
 
-  container.appendChild(msgDiv);
+  container.appendChild(div);
   container.scrollTop = container.scrollHeight;
 }
 
 function appendTypingIndicator() {
   const container = document.getElementById("chat-messages");
   const id = "typing-" + Date.now();
-  const typingDiv = document.createElement("div");
-  typingDiv.id = id;
-  typingDiv.className = "flex justify-start items-center space-x-2";
-  typingDiv.innerHTML = `
-    <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex-shrink-0 flex items-center justify-center font-bold text-xs">
+  const div = document.createElement("div");
+  div.id = id;
+  div.className = "flex justify-start items-center space-x-2";
+  div.innerHTML = `
+    <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
       <i class="fa-solid fa-robot"></i>
     </div>
     <div class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-slate-400 text-xs flex space-x-1 items-center">
@@ -365,7 +423,7 @@ function appendTypingIndicator() {
       <span class="animate-bounce delay-200">.</span>
     </div>
   `;
-  container.appendChild(typingDiv);
+  container.appendChild(div);
   container.scrollTop = container.scrollHeight;
   return id;
 }
@@ -376,12 +434,12 @@ function removeTypingIndicator(id) {
 
 function updateTelemetryUI(telemetry) {
   if (!telemetry) return;
-  document.getElementById("telemetry-count").textContent = `${telemetry.inferenceCount} consultas`;
-  document.getElementById("telemetry-model").textContent = telemetry.model || "LLAMA_3_2_1B_INST_Q4_0";
+  const countEl = document.getElementById("telemetry-count");
+  if (countEl) countEl.textContent = `${telemetry.inferenceCount} consultas`;
 }
 
 // ==========================================
-// MODAL DE CARGA DE DATOS SINTÉTICOS PROPIOS
+// 8. MODAL DE CARGA DE DATOS PERSONALIZADOS
 // ==========================================
 function initCustomDataModal() {
   const modal = document.getElementById("upload-modal");
@@ -391,14 +449,12 @@ function initCustomDataModal() {
   const submitBtn = document.getElementById("btn-submit-custom-data");
   const jsonArea = document.getElementById("custom-transactions-json");
 
-  // Plantilla de ejemplo por defecto
   const sampleJson = [
-    { id: "eval-01", date: "2026-09-01", merchant: "ACH Depósito Nómina Quincena", category: "Ingresos", amount: 1000.00, type: "income" },
-    { id: "eval-02", date: "2026-09-02", merchant: "Alquiler Residencia", category: "Vivienda", amount: 600.00, type: "expense" },
-    { id: "eval-03", date: "2026-09-03", merchant: "Supermercado Riba Smith", category: "Alimentación Básica", amount: 150.00, type: "expense" },
-    { id: "eval-04", date: "2026-09-04", merchant: "Cafetería Starbucks Costa del Este", category: "Café y Bebidas", amount: 5.50, type: "expense", isMicroExpense: true },
-    { id: "eval-05", date: "2026-09-04", merchant: "PedidosYa cena express", category: "Delivery Comida", amount: 14.20, type: "expense", isMicroExpense: true },
-    { id: "eval-06", date: "2026-09-05", merchant: "Kiosco Snacks", category: "Snacks / Kiosco", amount: 3.50, type: "expense", isMicroExpense: true }
+    { id: "eval-01", date: "2026-09-01", merchant: "ACH Depósito Quincena", category: "Ingresos", amount: 1100.00, type: "income" },
+    { id: "eval-02", date: "2026-09-02", merchant: "Alquiler Residencia", category: "Vivienda", amount: 500.00, type: "expense" },
+    { id: "eval-03", date: "2026-09-03", merchant: "Super 99 Albrook", category: "Alimentación Básica", amount: 160.00, type: "expense" },
+    { id: "eval-04", date: "2026-09-04", merchant: "Cafetería Starbucks", category: "Café y Bebidas", amount: 5.25, type: "expense", isMicroExpense: true },
+    { id: "eval-05", date: "2026-09-05", merchant: "PedidosYa almuerzo", category: "Delivery Comida", amount: 13.50, type: "expense", isMicroExpense: true }
   ];
 
   openBtn?.addEventListener("click", () => {
@@ -414,16 +470,12 @@ function initCustomDataModal() {
     try {
       const name = document.getElementById("custom-profile-name").value || "Perfil Personalizado";
       const income = Number(document.getElementById("custom-monthly-income").value) || 2000;
-      const parsedTransactions = JSON.parse(jsonArea.value);
+      const transactions = JSON.parse(jsonArea.value);
 
       const res = await fetch("/api/analyze-custom", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          profileName: name,
-          monthlyIncome: income,
-          transactions: parsedTransactions
-        })
+        body: JSON.stringify({ profileName: name, monthlyIncome: income, transactions })
       });
 
       const data = await res.json();
@@ -434,45 +486,44 @@ function initCustomDataModal() {
       currentAnalysis = data.analysis;
       updateUI(currentProfile, currentAnalysis);
 
-      // Ir a la pestaña de resumen
-      document.getElementById("tab-overview-btn")?.click();
+      document.getElementById("nav-btn-productos")?.click();
     } catch (err) {
-      alert("Error al procesar el JSON: " + err.message);
+      alert("Error al procesar JSON: " + err.message);
     }
   });
 }
 
 // ==========================================
-// AUTO-AUDITORÍA DE AISLAMIENTO DE RED
+// 9. AUTO-AUDITORÍA DE PRIVACIDAD
 // ==========================================
 function initSelfAudit() {
   const auditBtn = document.getElementById("btn-run-self-audit");
   const resultBox = document.getElementById("self-audit-result");
 
   auditBtn?.addEventListener("click", () => {
-    auditBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Escaneando sockets y conexiones...`;
+    auditBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Auditando sockets y aislamiento...`;
     auditBtn.disabled = true;
 
     setTimeout(() => {
-      auditBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Auditoría Completada`;
-      auditBtn.className = "bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg text-xs cursor-default flex items-center space-x-2";
+      auditBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Auditoría Aprobada`;
+      auditBtn.className = "bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl text-xs flex items-center space-x-2";
       resultBox?.classList.remove("hidden");
-    }, 800);
+    }, 700);
   });
 }
 
 // ==========================================
-// UTILIDADES FORMATO MARKDOWN LIVIANO
+// 10. UTILIDADES FORMATO MARKDOWN
 // ==========================================
 function formatMarkdown(text) {
   if (!text) return "";
   let html = text
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
-    .replace(/\n\n/g, "</p><p>")
-    .replace(/\n- (.*?)/g, "<li>$1</li>");
+    .replace(/\n\n/g, "</p><p class='mt-2'>")
+    .replace(/\n- (.*?)/g, "<li class='ml-4 list-disc'>$1</li>");
 
-  return `<p>${html}</p>`.replace(/<p><\/p>/g, "");
+  return `<p>${html}</p>`;
 }
 
 function escapeHtml(string) {

@@ -3,546 +3,673 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CajaLocal AI - Asesor Financiero Descentralizado | Caja de Ahorros</title>
+  <title>Banca en Línea | Caja de Ahorros Panamá - CajaLocal AI</title>
   <!-- Tailwind CSS & FontAwesome Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Custom Styles -->
+  <!-- Custom Styles oficiales de Caja de Ahorros -->
   <link rel="stylesheet" href="/css/app.css">
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="bg-[#F5F7FA] text-slate-800 min-h-screen flex flex-col font-sans antialiased">
 
-  <!-- TOP HEADER BANCARIO -->
-  <header class="bg-[#0A2540] text-white sticky top-0 z-50 border-b border-blue-900 shadow-md">
+  <!-- ============================================================ -->
+  <!-- 1. TOP HEADER OFICIAL CAJA DE AHORROS (Azul Corporativo)    -->
+  <!-- ============================================================ -->
+  <header class="ca-header text-white sticky top-0 z-50 shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       
-      <!-- LOGO & BRANDING -->
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center text-[#0A2540] font-black text-xl shadow-inner">
-          CA
-        </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <span class="font-bold text-lg tracking-tight">Caja de Ahorros</span>
-            <span class="text-xs bg-emerald-500/20 text-emerald-300 font-semibold px-2 py-0.5 rounded border border-emerald-500/30">CajaLocal AI</span>
+      <!-- LOGO CAJA DE AHORROS -->
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2.5 cursor-pointer" id="brand-home-btn">
+          <!-- Insignia circular 'ca' idéntica a la banca en línea oficial -->
+          <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-inner">
+            <span class="text-[#004f98] font-black text-xl tracking-tighter lowercase select-none">ca</span>
           </div>
-          <p class="text-[11px] text-slate-300 font-medium tracking-wide">El Banco de la Familia Panameña • Powered by QVAC SDK</p>
+          <div>
+            <span class="font-extrabold text-lg sm:text-xl tracking-tight leading-none block">Caja de Ahorros</span>
+            <span class="text-[10px] text-blue-200 tracking-wider uppercase font-semibold">El Banco de la Familia Panameña</span>
+          </div>
+        </div>
+
+        <!-- Separador vertical -->
+        <div class="hidden lg:block h-8 w-px bg-blue-400/40"></div>
+
+        <!-- Timestamps idénticos a la banca en línea oficial de Caja de Ahorros -->
+        <div class="hidden lg:flex flex-col text-[11px] text-blue-100/90 leading-tight">
+          <div class="flex items-center space-x-1.5">
+            <i class="fa-regular fa-clock text-[10px] text-blue-300"></i>
+            <span>Actualizada: <strong id="live-time-updated" class="font-semibold text-white">01:11 PM, 05 marzo 2026</strong></span>
+          </div>
+          <span class="text-[10px] text-blue-200">Última conexión: <span id="live-time-login">01:11 PM, 05 marzo 2026</span></span>
         </div>
       </div>
 
-      <!-- BADGES & PROFILE SELECTOR -->
+      <!-- BADGES DE AUDITORÍA Y SELECTOR DE PERFILES -->
       <div class="flex items-center space-x-3">
-        <!-- Badge de Inferencia Local -->
-        <div class="hidden sm:flex items-center space-x-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 text-xs font-semibold">
+        
+        <!-- Badge QVAC On-Device -->
+        <div class="hidden sm:flex items-center space-x-1.5 px-3 py-1 rounded-full bg-blue-950/70 border border-blue-400/30 text-emerald-300 text-xs font-semibold shadow-inner">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>Inferencia 100% On-Device</span>
-          <span class="text-slate-400">|</span>
-          <span class="text-emerald-300 font-mono text-[10px]">0 Bytes Cloud</span>
+          <span>QVAC On-Device</span>
+          <span class="text-blue-300">|</span>
+          <span class="text-[11px] text-white font-mono">0 Bytes Cloud</span>
         </div>
 
-        <!-- Selector de Perfiles para Jurado -->
+        <!-- Selector de Perfiles para el Jurado -->
         <div class="relative">
-          <select id="profile-select" class="bg-[#13355b] border border-blue-700/60 text-white text-xs rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-emerald-400 outline-none cursor-pointer">
-            <option value="carlos_gastos_hormiga">👤 Carlos (Fuga Gastos Hormiga)</option>
+          <select id="profile-select" class="bg-blue-900/80 border border-blue-400/50 text-white text-xs rounded-lg px-2.5 py-1.5 font-medium outline-none cursor-pointer hover:bg-blue-900 transition">
+            <option value="carlos_gastos_hormiga">👤 Carlos Méndez (Gastos Hormiga)</option>
             <option value="familia_gomez_vivienda">👨‍👩‍👧 Familia Gómez (Meta Vivienda)</option>
-            <option value="valeria_regla_60_25_15">👩‍💼 Valeria (Regla 60-25-15)</option>
+            <option value="valeria_regla_60_25_15">👩‍💼 Valeria Ríos (Regla 60-25-15)</option>
           </select>
         </div>
 
-        <!-- Botón Cargar Datos Propios -->
-        <button id="btn-open-upload" class="bg-blue-800/60 hover:bg-blue-700/80 text-white text-xs font-medium px-3 py-1.5 rounded-lg border border-blue-600/40 transition flex items-center space-x-1.5">
-          <i class="fa-solid fa-file-arrow-up text-xs"></i>
-          <span class="hidden md:inline">Cargar Datos</span>
+        <!-- Cargar Datos Personalizados -->
+        <button id="btn-open-upload" class="bg-white/10 hover:bg-white/20 text-white text-xs px-2.5 py-1.5 rounded-lg border border-white/20 transition flex items-center space-x-1.5" title="Cargar transacciones personalizadas">
+          <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+          <span class="hidden md:inline font-medium">Subir Datos</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- BANNER PRIVACIDAD Y SOBERANÍA -->
-  <section class="bg-gradient-to-r from-[#0d3153] via-[#0A2540] to-[#0a3827] text-white py-3 border-b border-blue-900/40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-2 text-xs">
-      <div class="flex items-center space-x-2">
-        <i class="fa-solid fa-shield-halved text-emerald-400 text-base"></i>
-        <span><strong>Garantía de Soberanía Financiera:</strong> Todas las transacciones se analizan localmente con el SDK de QVAC. Tu historial nunca sale de este equipo.</span>
-      </div>
-      <div class="flex items-center space-x-3 text-slate-300">
-        <span id="model-tag" class="bg-white/10 px-2 py-0.5 rounded text-[11px] font-mono">QVAC: LLAMA_3_2_1B_INST_Q4_0</span>
-        <button id="btn-show-audit" class="text-emerald-300 hover:text-emerald-200 underline font-semibold flex items-center space-x-1">
-          <i class="fa-solid fa-microchip text-[10px]"></i>
-          <span>Ver Auditoría Local</span>
+  <!-- ============================================================ -->
+  <!-- 2. SUB-BARRA DE NAVEGACIÓN OFICIAL (Fondo Blanco)           -->
+  <!-- ============================================================ -->
+  <nav class="bg-white border-b border-slate-200 shadow-sm relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <div class="flex space-x-6 sm:space-x-8 overflow-x-auto text-sm py-3" id="main-nav-bar">
+        
+        <!-- Pestaña 1: Mis productos (Oficial) -->
+        <button id="nav-btn-productos" class="ca-nav-item active flex items-center space-x-2">
+          <i class="fa-solid fa-wallet text-sm text-[#004f98]"></i>
+          <span>Mis productos</span>
         </button>
-      </div>
-    </div>
-  </section>
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Pestaña 2: CajaLocal AI (Innovación QVAC) -->
+        <button id="nav-btn-advisor" class="ca-nav-item flex items-center space-x-2">
+          <i class="fa-solid fa-wand-magic-sparkles text-sm text-emerald-600"></i>
+          <span>CajaLocal AI</span>
+          <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase">On-Device</span>
+        </button>
 
-    <!-- PERFIL DEL CLIENTE ACTIVO -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-5 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-      <div class="flex items-center space-x-4">
-        <div id="profile-avatar" class="text-4xl p-2 bg-slate-100 rounded-xl border border-slate-200">
-          👨‍💻
-        </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <h1 id="profile-name" class="text-xl font-bold text-slate-900">Carlos Méndez</h1>
-            <span id="profile-badge" class="bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded-full border border-blue-200">Cliente Activo</span>
+        <!-- Menú Desplegable: Transacciones y pagos (Idéntico a Captura 4) -->
+        <div class="relative inline-block text-left" id="transacciones-dropdown-container">
+          <button id="nav-btn-transacciones" class="ca-nav-item flex items-center space-x-1.5">
+            <i class="fa-solid fa-money-bill-transfer text-sm text-slate-500"></i>
+            <span>Transacciones y pagos</span>
+            <i class="fa-solid fa-chevron-down text-[10px] ml-0.5 text-slate-400"></i>
+          </button>
+
+          <!-- Dropdown Popover de Transacciones y Pagos (Idéntico a Captura 4) -->
+          <div id="transacciones-popover" class="hidden absolute left-0 mt-1 w-[680px] bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 z-50">
+            <div class="grid grid-cols-2 gap-8 divide-x divide-slate-100">
+              
+              <!-- Columna 1: Transferir -->
+              <div>
+                <h4 class="font-bold text-slate-900 text-sm">Transferir</h4>
+                <p class="text-xs text-slate-500 mb-4">Realiza transferencias seguras a tus cuentas y otros bancos.</p>
+                <div class="grid grid-cols-3 gap-3">
+                  <div class="ca-quick-btn cursor-pointer" onclick="alert('Módulo de Transferencia entre cuentas');">
+                    <i class="fa-solid fa-arrows-rotate text-[#004f98] text-lg mb-1"></i>
+                    <span class="text-[11px] text-center text-slate-700 font-medium leading-tight">Entre mis cuentas</span>
+                  </div>
+                  <div class="ca-quick-btn cursor-pointer" onclick="alert('Transferencia a terceros en Caja de Ahorros');">
+                    <i class="fa-solid fa-users text-[#004f98] text-lg mb-1"></i>
+                    <span class="text-[11px] text-center text-slate-700 font-medium leading-tight">Transferencia a terceros</span>
+                  </div>
+                  <div class="ca-quick-btn cursor-pointer" onclick="alert('ACH Otros bancos');">
+                    <i class="fa-solid fa-building-columns text-[#004f98] text-lg mb-1"></i>
+                    <span class="text-[11px] text-center text-slate-700 font-medium leading-tight">Otros bancos</span>
+                  </div>
+                  <div class="ca-quick-btn cursor-pointer">
+                    <i class="fa-solid fa-globe text-[#004f98] text-lg mb-1"></i>
+                    <span class="text-[11px] text-center text-slate-700 font-medium leading-tight">Internacional</span>
+                  </div>
+                  <div class="ca-quick-btn cursor-pointer">
+                    <i class="fa-solid fa-calendar-check text-[#004f98] text-lg mb-1"></i>
+                    <span class="text-[11px] text-center text-slate-700 font-medium leading-tight">Programadas</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Columna 2: Pagar -->
+              <div class="pl-8">
+                <h4 class="font-bold text-slate-900 text-sm">Pagar</h4>
+                <p class="text-xs text-slate-500 mb-4">Realiza pagos a productos, servicios y recargas.</p>
+                <div class="grid grid-cols-3 gap-3">
+                  <div class="ca-quick-btn cursor-pointer">
+                    <i class="fa-solid fa-credit-card text-[#004f98] text-lg mb-1"></i>
+                    <span class="text-[11px] text-center text-slate-700 font-medium leading-tight">Tarjetas</span>
+                  </div>
+                  <div class="ca-quick-btn cursor-pointer">
+                    <i class="fa-solid fa-hand-holding-dollar text-[#004f98] text-lg mb-1"></i>
+                    <span class="text-[11px] text-center text-slate-700 font-medium leading-tight">Préstamos</span>
+                  </div>
+                  <div class="ca-quick-btn cursor-pointer">
+                    <i class="fa-solid fa-receipt text-[#004f98] text-lg mb-1"></i>
+                    <span class="text-[11px] text-center text-slate-700 font-medium leading-tight">Servicios</span>
+                  </div>
+                  <div class="ca-quick-btn cursor-pointer">
+                    <i class="fa-solid fa-mobile-screen text-[#004f98] text-lg mb-1"></i>
+                    <span class="text-[11px] text-center text-slate-700 font-medium leading-tight">Recargas</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <p id="profile-desc" class="text-xs text-slate-500 mt-0.5 max-w-2xl">
-            Ingresos estables pero sufre fugas constantes por microgastos diarios. Ahorra apenas el 2% mensual.
-          </p>
-          <div class="flex items-center space-x-4 mt-2 text-xs text-slate-600">
-            <span><i class="fa-solid fa-credit-card text-slate-400 mr-1"></i> <strong id="profile-account">CA-0104-8842-19</strong></span>
-            <span><i class="fa-solid fa-bullseye text-emerald-600 mr-1"></i> Meta: <strong id="profile-goal" class="text-emerald-700">Reducir gastos hormiga y abrir Cuenta de Ahorro Navideño</strong></span>
-          </div>
         </div>
-      </div>
 
-      <!-- Tarjeta Resumen Saldo & Salud -->
-      <div class="flex items-center space-x-4 w-full md:w-auto justify-end border-t md:border-t-0 pt-3 md:pt-0">
-        <div class="text-right">
-          <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold block">Balance Neto del Mes</span>
-          <span id="stat-net-balance" class="text-2xl font-black text-slate-900">$142.20</span>
-        </div>
-        <div class="pl-4 border-l border-slate-200 text-center">
-          <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">Salud Financiera</span>
-          <div class="flex items-center justify-center space-x-1 mt-0.5">
-            <span id="stat-health-score" class="text-2xl font-black text-amber-500">62</span>
-            <span class="text-xs text-slate-400">/100</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PESTAÑAS DE NAVEGACIÓN -->
-    <div class="border-b border-slate-200 mb-6">
-      <nav class="flex space-x-4 overflow-x-auto" aria-label="Tabs">
-        <button id="tab-overview-btn" class="tab-btn active-tab border-emerald-600 text-emerald-700 whitespace-nowrap py-3 px-3 border-b-2 font-bold text-sm flex items-center space-x-2">
-          <i class="fa-solid fa-chart-pie"></i>
-          <span>Resumen de Cuentas</span>
-        </button>
-        <button id="tab-hormiga-btn" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm flex items-center space-x-2">
-          <i class="fa-solid fa-bug text-amber-500"></i>
-          <span>Detector de Gastos Hormiga</span>
-          <span id="badge-micro-count" class="bg-amber-100 text-amber-800 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full">14</span>
-        </button>
-        <button id="tab-budget-btn" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm flex items-center space-x-2">
-          <i class="fa-solid fa-scale-balanced text-blue-600"></i>
-          <span>Presupuesto 60-25-15</span>
-        </button>
-        <button id="tab-advisor-btn" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm flex items-center space-x-2">
-          <i class="fa-solid fa-robot text-purple-600"></i>
-          <span>Asesor Inteligente QVAC</span>
-          <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">On-Device</span>
-        </button>
-        <button id="tab-audit-btn" class="tab-btn border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm flex items-center space-x-2">
-          <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+        <!-- Pestaña 4: Auditoría & Soberanía (Para el Jurado) -->
+        <button id="nav-btn-audit" class="ca-nav-item flex items-center space-x-1.5">
+          <i class="fa-solid fa-shield-halved text-sm text-emerald-600"></i>
           <span>Auditoría & Soberanía</span>
         </button>
-      </nav>
+
+        <!-- Otras opciones oficiales -->
+        <button class="ca-nav-item hidden md:flex items-center space-x-1.5" onclick="alert('Módulo de solicitudes de Caja de Ahorros');">
+          <i class="fa-regular fa-file-lines text-sm text-slate-400"></i>
+          <span>Solicitudes</span>
+        </button>
+        <button class="ca-nav-item hidden md:flex items-center space-x-1.5" onclick="alert('Configuración de usuario');">
+          <i class="fa-solid fa-gear text-sm text-slate-400"></i>
+          <span>Configuración</span>
+        </button>
+      </div>
     </div>
+  </nav>
 
-    <!-- SECCIÓN 1: RESUMEN DE CUENTAS (OVERVIEW) -->
-    <div id="tab-overview" class="tab-content block space-y-6">
+  <!-- ============================================================ -->
+  <!-- 3. CONTENIDO PRINCIPAL SEGÚN PESTAÑA                         -->
+  <!-- ============================================================ -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ======================================================== -->
+    <!-- VISTA 1: "MIS PRODUCTOS" (DASHBOARD BANCA EN LÍNEA)     -->
+    <!-- ======================================================== -->
+    <div id="view-productos" class="space-y-6 block">
       
-      <!-- KPI CARDS -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Ingresos -->
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-xs text-slate-500 font-semibold uppercase">Ingresos Totales</p>
-            <h3 id="stat-total-income" class="text-xl font-black text-emerald-600 mt-1">$1,850.00</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">Depósitos y nómina ACH</p>
-          </div>
-          <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
-            <i class="fa-solid fa-arrow-down-long"></i>
-          </div>
+      <!-- SALUDO OFICIAL (Idéntico a Captura 3) -->
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+        <div>
+          <h1 class="text-2xl font-black text-slate-900 flex items-center space-x-2">
+            <span>¡Hola, <span id="saludo-nombre">Carlos Méndez</span>!</span>
+          </h1>
+          <p class="text-xs text-slate-500 mt-1 font-medium">
+            Mantenga sus ahorros organizados y optimice sus finanzas de manera fácil con inteligencia local.
+          </p>
         </div>
 
-        <!-- Gastos Totales -->
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-xs text-slate-500 font-semibold uppercase">Gastos Totales</p>
-            <h3 id="stat-total-expenses" class="text-xl font-black text-red-600 mt-1">$1,707.80</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">Egresos registrados</p>
+        <!-- Indicador Rápido de Salud Financiera -->
+        <div class="flex items-center space-x-4 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+          <div class="text-right">
+            <span class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Salud Financiera</span>
+            <span class="text-xs text-emerald-700 font-semibold" id="top-health-status">Fuga en Deseos</span>
           </div>
-          <div class="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center text-lg">
-            <i class="fa-solid fa-arrow-up-long"></i>
-          </div>
-        </div>
-
-        <!-- Fuga en Gastos Hormiga -->
-        <div class="bg-white p-4 rounded-xl border border-amber-200 bg-amber-50/20 shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-xs text-amber-700 font-semibold uppercase">Fuga Gastos Hormiga</p>
-            <h3 id="stat-micro-amount" class="text-xl font-black text-amber-600 mt-1">$218.45</h3>
-            <p id="stat-micro-percent" class="text-[11px] text-amber-700/80 mt-0.5 font-medium">11.8% de tus ingresos</p>
-          </div>
-          <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-lg">
-            <i class="fa-solid fa-mug-hot"></i>
-          </div>
-        </div>
-
-        <!-- Ahorro Real vs Meta 15% -->
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-          <div>
-            <p class="text-xs text-slate-500 font-semibold uppercase">Tasa de Ahorro Real</p>
-            <h3 id="stat-saving-rate" class="text-xl font-black text-blue-600 mt-1">2.2%</h3>
-            <p class="text-[11px] text-slate-400 mt-0.5">Meta Caja de Ahorros: 15.0%</p>
-          </div>
-          <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
-            <i class="fa-solid fa-piggy-bank"></i>
+          <div class="flex items-center justify-center w-10 h-10 rounded-full bg-amber-50 text-amber-600 font-black text-lg border border-amber-200" id="top-health-circle">
+            70
           </div>
         </div>
       </div>
 
-      <!-- GRÁFICOS Y TRANSACCIONES -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- ACORDEONES DE PRODUCTOS ESTILO CAJA DE AHORROS (Captura 3) -->
+      <div class="space-y-3">
         
-        <!-- Gráfico Desglose por Categoría -->
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-          <h3 class="font-bold text-slate-900 text-sm mb-1 flex items-center justify-between">
-            <span>Distribución de Gastos</span>
-            <i class="fa-solid fa-chart-donut text-slate-400"></i>
-          </h3>
-          <p class="text-xs text-slate-500 mb-4">Clasificación automática por categoría bancaria.</p>
-          <div class="h-64 relative flex items-center justify-center">
-            <canvas id="categoryChart"></canvas>
+        <!-- Fila 1: Cuentas (Expandible) -->
+        <div class="ca-product-card p-4">
+          <div class="flex items-center justify-between cursor-pointer" id="btn-toggle-cuentas">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-lg bg-blue-50 text-[#004f98] flex items-center justify-center text-base">
+                <i class="fa-solid fa-piggy-bank"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">Cuentas: (1)</h3>
+                <p class="text-[11px] text-slate-500" id="cuenta-subtitulo">Cuenta de ahorro regular • No. 010000367531</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="text-right">
+                <span class="text-[10px] text-slate-400 block uppercase font-bold">Total disponible</span>
+                <span id="cuenta-total-disp" class="text-lg font-black text-slate-900">$ 1,850.00</span>
+              </div>
+              <i class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-200" id="chevron-cuentas"></i>
+            </div>
+          </div>
+
+          <!-- Detalle de la cuenta (Visible) -->
+          <div class="mt-4 pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-slate-600 gap-2">
+            <div>
+              <span class="font-semibold text-slate-800">Cuenta de ahorros:</span> Cuenta de ahorro regular
+              <span class="text-slate-400 mx-2">|</span>
+              No. Cuenta: <strong class="text-[#004f98]" id="card-cuenta-num">010000367531</strong>
+            </div>
+            <div class="flex space-x-2">
+              <button class="text-[#004f98] font-bold hover:underline" onclick="document.getElementById('nav-btn-advisor').click();">
+                <i class="fa-solid fa-sparkles mr-1"></i> Asesorar esta cuenta
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Tabla Historial Transaccional -->
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <div>
-                <h3 class="font-bold text-slate-900 text-sm">Registro de Transacciones Auditado</h3>
-                <p class="text-xs text-slate-500">Procesadas en el navegador, sin salir a la red.</p>
+        <!-- Fila 2: Préstamos (Captura 3) -->
+        <div class="ca-product-card p-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-base">
+                <i class="fa-solid fa-hand-holding-dollar"></i>
               </div>
-              <span id="tx-count-badge" class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded font-medium">32 movimientos</span>
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">Préstamos: (1)</h3>
+                <p class="text-[11px] text-slate-500">Préstamo Hipotecario Caja de Ahorros</p>
+              </div>
             </div>
-
-            <div class="overflow-x-auto max-h-72 border border-slate-100 rounded-lg">
-              <table class="w-full text-left text-xs text-slate-600">
-                <thead class="bg-slate-50 text-slate-500 uppercase font-semibold text-[10px] sticky top-0 border-b border-slate-200">
-                  <tr>
-                    <th class="py-2.5 px-3">Fecha</th>
-                    <th class="py-2.5 px-3">Comercio / Descripción</th>
-                    <th class="py-2.5 px-3">Categoría</th>
-                    <th class="py-2.5 px-3 text-right">Monto</th>
-                    <th class="py-2.5 px-3 text-center">Tipo</th>
-                  </tr>
-                </thead>
-                <tbody id="transactions-table-body" class="divide-y divide-slate-100">
-                  <!-- Filas inyectadas por JS -->
-                </tbody>
-              </table>
+            <div class="flex items-center space-x-3">
+              <div class="text-right">
+                <span class="text-[10px] text-slate-400 block uppercase font-bold">Saldo total</span>
+                <span class="text-lg font-black text-slate-900" id="prestamo-saldo">-$ 450.00</span>
+              </div>
+              <i class="fa-solid fa-chevron-down text-slate-400 text-xs"></i>
             </div>
           </div>
+        </div>
 
-          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span><i class="fa-solid fa-circle-info text-blue-500 mr-1"></i> El ícono 🐜 resalta compras hormiga identificadas.</span>
-            <button id="btn-goto-advisor-from-overview" class="text-emerald-600 font-bold hover:underline flex items-center space-x-1">
-              <span>Asesorarme sobre estos gastos</span>
-              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        <!-- Fila 3: Tarjetas de crédito (Captura 3) -->
+        <div class="ca-product-card p-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center text-base">
+                <i class="fa-regular fa-credit-card"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">Tarjetas de crédito: (1)</h3>
+                <p class="text-[11px] text-slate-500">Mastercard Clásica Caja de Ahorros</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="text-right">
+                <span class="text-[10px] text-slate-400 block uppercase font-bold">Total disponible</span>
+                <span class="text-lg font-black text-slate-900">-$ 180.00</span>
+              </div>
+              <i class="fa-solid fa-chevron-down text-slate-400 text-xs"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCESOS RÁPIDOS (Idéntico a Captura 1 de la App Móvil) -->
+      <div>
+        <h3 class="font-bold text-slate-900 text-sm mb-3">Accesos rápidos</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+          
+          <!-- Transferir -->
+          <div class="ca-quick-btn cursor-pointer" onclick="document.getElementById('nav-btn-transacciones').click();">
+            <div class="w-10 h-10 rounded-full bg-blue-50 text-[#004f98] flex items-center justify-center text-lg mb-2">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </div>
+            <span class="font-bold text-xs text-slate-800">Transferir</span>
+          </div>
+
+          <!-- Yappy -->
+          <div class="ca-quick-btn cursor-pointer" onclick="alert('Integración Yappy Panamá');">
+            <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center space-x-0.5 mb-2">
+              <span class="w-3.5 h-3.5 rounded-full bg-sky-500"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-orange-500 -ml-1"></span>
+            </div>
+            <span class="font-bold text-xs text-slate-800">Yappy</span>
+          </div>
+
+          <!-- Kuara -->
+          <div class="ca-quick-btn cursor-pointer" onclick="alert('Kuara: Red de transferencias interbancarias en Panamá');">
+            <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg mb-2">
+              <i class="fa-solid fa-face-smile"></i>
+            </div>
+            <span class="font-bold text-xs text-slate-800">Kuara</span>
+          </div>
+
+          <!-- Xpress -->
+          <div class="ca-quick-btn cursor-pointer">
+            <div class="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center text-lg mb-2">
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+            <span class="font-bold text-xs text-slate-800">Xpress</span>
+          </div>
+
+          <!-- Asesor Inteligente QVAC -->
+          <div class="ca-quick-btn cursor-pointer border-emerald-300 bg-emerald-50/40 hover:bg-emerald-50" onclick="document.getElementById('nav-btn-advisor').click();">
+            <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center text-lg mb-2 shadow-sm">
+              <i class="fa-solid fa-robot"></i>
+            </div>
+            <span class="font-bold text-xs text-emerald-800">Asesor QVAC</span>
+          </div>
+
+          <!-- Detector Gastos Hormiga -->
+          <div class="ca-quick-btn cursor-pointer border-amber-200 bg-amber-50/40 hover:bg-amber-50" onclick="document.getElementById('nav-btn-advisor').click();">
+            <div class="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center text-lg mb-2 shadow-sm">
+              <i class="fa-solid fa-bug"></i>
+            </div>
+            <span class="font-bold text-xs text-amber-800">Gastos Hormiga</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BANNER PROMOCIONAL SUGERENCIAS PARA TI (Idéntico a Captura 1) -->
+      <div class="rounded-2xl bg-gradient-to-r from-[#004f98] via-[#0066c2] to-[#0080ff] text-white p-6 shadow-md relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="z-10 max-w-xl">
+          <span class="bg-amber-400 text-[#004f98] text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            Sugerencias para ti • Caja de Ahorros
+          </span>
+          <h2 class="text-2xl font-black mt-2 tracking-tight">¡ESE AHORRO ES PA' TI!</h2>
+          <p class="text-blue-100 text-xs mt-1">
+            Detectamos que puedes rescatar hasta <strong id="banner-savings-amount" class="text-amber-300 font-extrabold">$148.50 al mes</strong> reduciendo microgastos entre semana. ¡Abre tu <strong>Cuenta de Ahorro Navideño</strong> o tu <strong>Plazo Fijo</strong> directamente en tu banca en línea!
+          </p>
+          <div class="mt-4 flex items-center space-x-3">
+            <button class="bg-amber-400 hover:bg-amber-300 text-[#004f98] font-extrabold text-xs px-4 py-2 rounded-xl transition shadow" onclick="document.getElementById('nav-btn-advisor').click();">
+              Ver Plan de Ahorro con QVAC
             </button>
+            <span class="text-[11px] text-blue-200">Aprobación inmediata • Sin salir de casa</span>
           </div>
+        </div>
+        <div class="hidden md:block z-10 text-right">
+          <div class="w-24 h-24 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-4xl shadow-inner">
+            <i class="fa-solid fa-vault"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- MOVIMIENTOS RECIENTES AUDITADOS EN ESTE EQUIPO -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="font-bold text-slate-900 text-sm">Movimientos Recientes</h3>
+            <p class="text-xs text-slate-500">Analizados 100% en tu navegador con QVAC SDK (Sin llamadas a servidores externos)</p>
+          </div>
+          <span class="text-xs font-semibold text-[#004f98] cursor-pointer hover:underline" onclick="document.getElementById('nav-btn-advisor').click();">
+            Ver desglose inteligente →
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-slate-500 uppercase font-semibold text-[10px] border-b border-slate-200">
+              <tr>
+                <th class="py-2.5 px-3">Fecha</th>
+                <th class="py-2.5 px-3">Comercio / Detalle</th>
+                <th class="py-2.5 px-3">Categoría</th>
+                <th class="py-2.5 px-3 text-right">Monto</th>
+                <th class="py-2.5 px-3 text-center">Tipo</th>
+              </tr>
+            </thead>
+            <tbody id="home-tx-body" class="divide-y divide-slate-100">
+              <!-- Renderizado por JS -->
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
 
-    <!-- SECCIÓN 2: DETECTOR DE GASTOS HORMIGA -->
-    <div id="tab-hormiga" class="tab-content hidden space-y-6">
+    <!-- ======================================================== -->
+    <!-- VISTA 2: CAJALOCAL AI (ASESOR INTELIGENTE & DIAGNÓSTICO) -->
+    <!-- ======================================================== -->
+    <div id="view-advisor" class="space-y-6 hidden">
       
-      <!-- BANNER DE IMPACTO ACUMULADO -->
-      <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white rounded-xl p-6 shadow-md">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+      <!-- HEADER DEL MÓDULO INTELIGENTE -->
+      <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl shadow-md">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h2 class="text-xl font-bold text-slate-900">CajaLocal AI: Asesor Financiero Autónomo</h2>
+              <span class="text-[11px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">100% Local</span>
+            </div>
+            <p class="text-xs text-slate-500">
+              Inferencia de Llama 3.2 1B ejecutándose localmente mediante QVAC SDK. Privacidad bancaria absoluta.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <span class="text-xs text-slate-400 font-mono">Modelo: <strong class="text-slate-700">LLAMA_3_2_1B_INST_Q4_0</strong></span>
+        </div>
+      </div>
+
+      <!-- SUB-PESTAÑAS DEL ASESOR -->
+      <div class="border-b border-slate-200">
+        <nav class="flex space-x-6 text-xs font-bold" id="advisor-tabs">
+          <button id="adv-tab-hormiga" class="ca-nav-item active flex items-center space-x-2">
+            <i class="fa-solid fa-bug text-amber-500"></i>
+            <span>Detector de Gastos Hormiga & Regla 2 Días</span>
+          </button>
+          <button id="adv-tab-budget" class="ca-nav-item flex items-center space-x-2">
+            <i class="fa-solid fa-scale-balanced text-blue-600"></i>
+            <span>Presupuesto 60-25-15</span>
+          </button>
+          <button id="adv-tab-chat" class="ca-nav-item flex items-center space-x-2">
+            <i class="fa-solid fa-comments text-emerald-600"></i>
+            <span>Chat con tu Asesor QVAC</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- SECCIÓN INTERNA: GASTOS HORMIGA -->
+      <div id="advisor-content-hormiga" class="space-y-6 block">
+        
+        <!-- Tarjeta Hero Gastos Hormiga -->
+        <div class="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white rounded-2xl p-6 shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
             <span class="bg-black/20 text-white text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
               Diagnóstico de Fuga Silenciosa
             </span>
-            <h2 class="text-2xl font-black mt-2">Fuga Detectada: <span id="hormiga-hero-amount">$218.45 al mes</span></h2>
-            <p class="text-amber-100 text-sm mt-1 max-w-xl">
-              Equivale a una fuga proyectada de <strong id="hormiga-projected-year">$2,621.40 al año</strong> en pequeñas compras recurrentes de café, comida delivery, postres y kioscos.
+            <h3 class="text-2xl font-black mt-2">Fuga Detectada: <span id="adv-hormiga-hero-amount">$218.45 al mes</span></h3>
+            <p class="text-amber-100 text-xs mt-1 max-w-xl">
+              Equivale a una fuga proyectada de <strong id="adv-hormiga-projected-year">$2,621.40 al año</strong> en pequeñas compras recurrentes de café, delivery express, kioscos y postres.
             </p>
           </div>
           <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl text-center border border-white/20 min-w-[200px]">
             <p class="text-xs text-amber-100 uppercase font-semibold">Rescate Potencial</p>
-            <p id="hormiga-savings-with-rule" class="text-3xl font-black text-white mt-1">$148.50</p>
-            <p class="text-[11px] text-amber-200">Ahorro mensual aplicando la Regla de 2 Días</p>
+            <p id="adv-hormiga-savings-with-rule" class="text-3xl font-black text-white mt-1">$148.50</p>
+            <p class="text-[11px] text-amber-200">Ahorro mensual con la Regla de 2 Días</p>
           </div>
         </div>
-      </div>
 
-      <!-- ESTRATEGIA CONDUCTUAL Y GRÁFICO POR DÍA -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- Tarjeta de la Regla Conductual -->
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-          <div>
-            <div class="flex items-center space-x-2 text-emerald-700 font-bold text-sm mb-2">
-              <i class="fa-solid fa-lightbulb text-amber-500 text-base"></i>
-              <span>Estrategia de Caja de Ahorros</span>
-            </div>
-            <h3 class="font-extrabold text-slate-900 text-lg mb-2">La Regla de los 2 Días de Gasto</h3>
-            <p class="text-xs text-slate-600 leading-relaxed mb-4">
-              La mayor fuga de tus gastos hormiga ocurre de <strong>Lunes a Jueves</strong> en la rutina laboral (cafés mañaneros de $4.85, snacks de media tarde y pedidos express por cansancio).
-            </p>
-
-            <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-3 space-y-2 mb-4 text-xs">
-              <div class="flex items-center justify-between">
-                <span class="text-emerald-800 font-medium">Gastos Lun-Jue (Rutina):</span>
-                <strong id="hormiga-weekday-total" class="text-emerald-950 font-bold">$135.20</strong>
+        <!-- Estrategia y Gráfico por día -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center space-x-2 text-emerald-700 font-bold text-xs mb-2">
+                <i class="fa-solid fa-lightbulb text-amber-500 text-sm"></i>
+                <span>Estrategia de Caja de Ahorros</span>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-emerald-800 font-medium">Gastos Vie-Dom (Fin de semana):</span>
-                <strong id="hormiga-weekend-total" class="text-emerald-950 font-bold">$83.25</strong>
+              <h4 class="font-extrabold text-slate-900 text-base mb-2">La Regla de los 2 Días de Gasto</h4>
+              <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                La mayor fuga de tus gastos hormiga ocurre de <strong>Lunes a Jueves</strong> en la oficina (cafés de $4.85, snacks y delivery por conveniencia).
+              </p>
+              <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 space-y-2 mb-4 text-xs">
+                <div class="flex items-center justify-between">
+                  <span class="text-emerald-800 font-medium">Gastos Lun-Jue (Rutina):</span>
+                  <strong id="adv-hormiga-weekday" class="text-emerald-950 font-bold">$135.20</strong>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-emerald-800 font-medium">Gastos Vie-Dom (Fin de semana):</span>
+                  <strong id="adv-hormiga-weekend" class="text-emerald-950 font-bold">$83.25</strong>
+                </div>
               </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                <strong>Consejo:</strong> Restringe compras de antojos a solo <strong>2 días por semana</strong> (ej. viernes y sábado). Los otros 5 días prepara café en casa u oficina.
+              </p>
             </div>
-
-            <p class="text-xs text-slate-600 leading-relaxed">
-              <strong>Consejo Práctico:</strong> Restringe tus compras de café y antojos a solo <strong>2 días a la semana</strong> (ej. viernes y sábado como recompensa). Los otros 5 días prepara café en casa u oficina.
-            </p>
-          </div>
-
-          <div class="mt-4 pt-3 border-t border-slate-100">
-            <button id="btn-ask-hormiga-advice" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg text-xs transition flex items-center justify-center space-x-2">
-              <i class="fa-solid fa-robot"></i>
-              <span>Consultar Plan de Acción al Asesor QVAC</span>
+            <button class="mt-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition" onclick="openChatWithPrompt('¿Cómo aplico la regla de 2 días de gasto para frenar mis gastos hormiga?');">
+              <i class="fa-solid fa-comments mr-1"></i> Asesorarme sobre esta regla
             </button>
           </div>
-        </div>
 
-        <!-- Gráfico Gastos Hormiga por Día -->
-        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm lg:col-span-2">
-          <h3 class="font-bold text-slate-900 text-sm mb-1 flex items-center justify-between">
-            <span>Frecuencia de Gastos Hormiga por Día de la Semana</span>
-            <i class="fa-solid fa-calendar-days text-slate-400"></i>
-          </h3>
-          <p class="text-xs text-slate-500 mb-4">Identifica los días de mayor fuga para aplicar el bloqueo conductual.</p>
-          <div class="h-64 relative">
-            <canvas id="dayOfWeekChart"></canvas>
-          </div>
-        </div>
-      </div>
-
-      <!-- COSTO DE OPORTUNIDAD EN PRODUCTOS DE CAJA DE AHORROS -->
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-        <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center space-x-2">
-          <i class="fa-solid fa-vault text-blue-700"></i>
-          <span>¿Qué ganarías trasladando este ahorro a Productos de Caja de Ahorros?</span>
-        </h3>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- Cuenta Navideña -->
-          <div class="border border-emerald-200 bg-emerald-50/40 rounded-xl p-4">
-            <div class="flex items-center space-x-2 text-emerald-800 font-bold text-xs mb-1">
-              <i class="fa-solid fa-gift text-emerald-600"></i>
-              <span>Cuenta de Ahorro Navideño</span>
-            </div>
-            <p id="caja-product-navidad" class="text-2xl font-black text-emerald-900 my-2">$1,707.75</p>
-            <p class="text-xs text-emerald-800 leading-snug">
-              Depositando el ahorro semanal rescatado de tus gastos hormiga, recibes tu aguinaldo completo en diciembre con intereses y bonificación.
-            </p>
-          </div>
-
-          <!-- Plazo Fijo -->
-          <div class="border border-blue-200 bg-blue-50/40 rounded-xl p-4">
-            <div class="flex items-center space-x-2 text-blue-800 font-bold text-xs mb-1">
-              <i class="fa-solid fa-chart-line text-blue-600"></i>
-              <span>Depósito a Plazo Fijo (3 Años)</span>
-            </div>
-            <p id="caja-product-plazofijo" class="text-2xl font-black text-blue-900 my-2">$5,584.00</p>
-            <p class="text-xs text-blue-800 leading-snug">
-              Garantía estatal, tasa competitiva y crecimiento de tu patrimonio familiar en lugar de diluirse en compras impulsivas.
-            </p>
-          </div>
-
-          <!-- Meta Hipotecaria -->
-          <div class="border border-purple-200 bg-purple-50/40 rounded-xl p-4">
-            <div class="flex items-center space-x-2 text-purple-800 font-bold text-xs mb-1">
-              <i class="fa-solid fa-house-chimney text-purple-600"></i>
-              <span>Abono Inicial Hipoteca Caja de Ahorros</span>
-            </div>
-            <p id="caja-product-vivienda" class="text-2xl font-black text-purple-900 my-2">En 24 Meses</p>
-            <p class="text-xs text-purple-800 leading-snug">
-              El ahorro sistemático de tus microgastos te permite completar el abono inicial para tu primera casa con los planes preferenciales del banco.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECCIÓN 3: PRESUPUESTO 60-25-15 -->
-    <div id="tab-budget" class="tab-content hidden space-y-6">
-      
-      <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 mb-4">
-          <div>
-            <h2 class="text-lg font-bold text-slate-900">Plan de Presupuesto Saludable 60-25-15</h2>
-            <p class="text-xs text-slate-500">
-              Metodología recomendada por Caja de Ahorros para proteger las finanzas de la familia panameña.
-            </p>
-          </div>
-          <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg">
-            Ingreso base evaluado: <strong id="budget-base-income" class="text-slate-900">$1,850.00</strong>
-          </div>
-        </div>
-
-        <!-- TRES PILARES -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-6">
-          
-          <!-- Pilar 1: Necesidades (60%) -->
-          <div class="border border-slate-200 rounded-xl p-4 relative bg-slate-50/50">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-bold uppercase text-slate-600">1. Necesidades Básicas</span>
-              <span class="text-xs bg-blue-100 text-blue-800 font-extrabold px-2 py-0.5 rounded">Meta: 60%</span>
-            </div>
-            <div class="flex items-baseline space-x-2 my-2">
-              <span id="budget-actual-pct-necesidades" class="text-3xl font-black text-slate-900">58.4%</span>
-              <span id="budget-actual-amt-necesidades" class="text-sm font-semibold text-slate-500">($1,080.40)</span>
-            </div>
-            <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden mb-2">
-              <div id="budget-bar-necesidades" class="bg-blue-600 h-full rounded-full" style="width: 58.4%"></div>
-            </div>
-            <p class="text-[11px] text-slate-500 leading-tight">
-              Meta sugerida: <strong id="budget-ideal-amt-necesidades">$1,110.00</strong>. Vivienda, alimentación del hogar, servicios básicos y transporte laboral.
-            </p>
-            <div class="mt-3 pt-2 border-t border-slate-200 text-xs">
-              Estado: <span id="budget-status-necesidades" class="font-bold text-emerald-600">Óptimo</span>
-            </div>
-          </div>
-
-          <!-- Pilar 2: Deseos (25%) -->
-          <div class="border border-slate-200 rounded-xl p-4 relative bg-slate-50/50">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-bold uppercase text-slate-600">2. Deseos y Estilo de Vida</span>
-              <span class="text-xs bg-amber-100 text-amber-800 font-extrabold px-2 py-0.5 rounded">Meta: 25%</span>
-            </div>
-            <div class="flex items-baseline space-x-2 my-2">
-              <span id="budget-actual-pct-deseos" class="text-3xl font-black text-slate-900">39.4%</span>
-              <span id="budget-actual-amt-deseos" class="text-sm font-semibold text-slate-500">($728.90)</span>
-            </div>
-            <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden mb-2">
-              <div id="budget-bar-deseos" class="bg-amber-500 h-full rounded-full" style="width: 39.4%"></div>
-            </div>
-            <p class="text-[11px] text-slate-500 leading-tight">
-              Meta sugerida: <strong id="budget-ideal-amt-deseos">$462.50</strong>. Salidas, restaurantes, delivery, compras no indispensables y entretenimiento.
-            </p>
-            <div class="mt-3 pt-2 border-t border-slate-200 text-xs">
-              Estado: <span id="budget-status-deseos" class="font-bold text-red-600">Elevado</span>
-            </div>
-          </div>
-
-          <!-- Pilar 3: Ahorro (15%) -->
-          <div class="border border-slate-200 rounded-xl p-4 relative bg-slate-50/50">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-bold uppercase text-slate-600">3. Ahorro e Inversión</span>
-              <span class="text-xs bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded">Meta: 15%</span>
-            </div>
-            <div class="flex items-baseline space-x-2 my-2">
-              <span id="budget-actual-pct-ahorro" class="text-3xl font-black text-slate-900">2.2%</span>
-              <span id="budget-actual-amt-ahorro" class="text-sm font-semibold text-slate-500">($40.00)</span>
-            </div>
-            <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden mb-2">
-              <div id="budget-bar-ahorro" class="bg-emerald-500 h-full rounded-full" style="width: 2.2%"></div>
-            </div>
-            <p class="text-[11px] text-slate-500 leading-tight">
-              Meta sugerida: <strong id="budget-ideal-amt-ahorro">$277.50</strong>. Fondo de emergencia, aportes a Caja de Ahorros y amortizaciones.
-            </p>
-            <div class="mt-3 pt-2 border-t border-slate-200 text-xs">
-              Estado: <span id="budget-status-ahorro" class="font-bold text-amber-600">Insuficiente</span>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2">
+            <h4 class="font-bold text-slate-900 text-sm mb-1">Distribución de Gastos Hormiga por Día</h4>
+            <p class="text-xs text-slate-500 mb-4">Visualiza qué días se producen las mayores fugas.</p>
+            <div class="h-60 relative">
+              <canvas id="dayOfWeekChart"></canvas>
             </div>
           </div>
         </div>
 
-        <!-- GRÁFICO COMPARATIVO -->
-        <div class="border-t border-slate-200 pt-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
-          <div>
-            <h4 class="font-bold text-slate-900 text-sm mb-2">Diagnóstico de Brecha Presupuestaria</h4>
-            <div id="budget-diagnosis-box" class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-2">
-              <!-- Inyectado por JS -->
-            </div>
-          </div>
-          <div class="h-56 relative flex items-center justify-center">
-            <canvas id="budgetChart"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECCIÓN 4: ASESOR INTELIGENTE QVAC (CHAT) -->
-    <div id="tab-advisor" class="tab-content hidden">
-      <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-[600px]">
-        
-        <!-- Chat Header -->
-        <div class="p-4 border-b border-slate-200 bg-slate-50 rounded-t-xl flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold">
-              <i class="fa-solid fa-robot"></i>
-            </div>
-            <div>
-              <div class="flex items-center space-x-2">
-                <h3 class="font-bold text-slate-900 text-sm">Asesor Financiero Local Caja de Ahorros</h3>
-                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded">QVAC Active</span>
+        <!-- Productos de Caja de Ahorros -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <h4 class="font-bold text-slate-900 text-sm mb-3">Oportunidades de Crecimiento con Productos de Caja de Ahorros</h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="border border-emerald-200 bg-emerald-50/40 rounded-xl p-4">
+              <div class="flex items-center space-x-2 text-emerald-800 font-bold text-xs mb-1">
+                <i class="fa-solid fa-gift text-emerald-600"></i>
+                <span>Cuenta de Ahorro Navideño</span>
               </div>
-              <p class="text-[11px] text-slate-500">Inferencia en tu dispositivo • Los datos no viajan a servidores externos</p>
+              <p id="adv-caja-navidad" class="text-2xl font-black text-emerald-900 my-1">$1,707.75</p>
+              <p class="text-xs text-emerald-800">Tu aguinaldo de fin de año garantizado sin deudas.</p>
+            </div>
+            <div class="border border-blue-200 bg-blue-50/40 rounded-xl p-4">
+              <div class="flex items-center space-x-2 text-blue-800 font-bold text-xs mb-1">
+                <i class="fa-solid fa-chart-line text-blue-600"></i>
+                <span>Depósito a Plazo Fijo (3 Años)</span>
+              </div>
+              <p id="adv-caja-plazofijo" class="text-2xl font-black text-blue-900 my-1">$5,584.00</p>
+              <p class="text-xs text-blue-800">Rendimiento garantizado por el banco de la familia panameña.</p>
+            </div>
+            <div class="border border-purple-200 bg-purple-50/40 rounded-xl p-4">
+              <div class="flex items-center space-x-2 text-purple-800 font-bold text-xs mb-1">
+                <i class="fa-solid fa-house-chimney text-purple-600"></i>
+                <span>Meta Vivienda Hipotecaria</span>
+              </div>
+              <p class="text-2xl font-black text-purple-900 my-1">En 24 Meses</p>
+              <p class="text-xs text-purple-800">Completa tu abono inicial para tu casa propia.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN INTERNA: PRESUPUESTO 60-25-15 -->
+      <div id="advisor-content-budget" class="space-y-6 hidden">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 class="text-lg font-bold text-slate-900 mb-1">Metodología de Presupuesto 60-25-15</h3>
+          <p class="text-xs text-slate-500 mb-6">Regla de oro para el bienestar financiero familiar en Panamá.</p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <!-- Necesidades 60% -->
+            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold uppercase text-slate-600">1. Necesidades (60%)</span>
+                <span id="adv-status-necesidades" class="text-xs font-bold text-emerald-600">Óptimo</span>
+              </div>
+              <div class="text-2xl font-black text-slate-900 my-1">
+                <span id="adv-pct-necesidades">58.4%</span>
+                <span class="text-xs font-normal text-slate-500" id="adv-amt-necesidades">($1,080.40)</span>
+              </div>
+              <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden my-2">
+                <div id="adv-bar-necesidades" class="bg-blue-600 h-full" style="width: 58.4%;"></div>
+              </div>
+              <p class="text-[11px] text-slate-500">Meta: Vivienda, alimentación, luz/agua y transporte.</p>
+            </div>
+
+            <!-- Deseos 25% -->
+            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold uppercase text-slate-600">2. Deseos (25%)</span>
+                <span id="adv-status-deseos" class="text-xs font-bold text-red-600">Elevado</span>
+              </div>
+              <div class="text-2xl font-black text-slate-900 my-1">
+                <span id="adv-pct-deseos">39.4%</span>
+                <span class="text-xs font-normal text-slate-500" id="adv-amt-deseos">($728.90)</span>
+              </div>
+              <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden my-2">
+                <div id="adv-bar-deseos" class="bg-amber-500 h-full" style="width: 39.4%;"></div>
+              </div>
+              <p class="text-[11px] text-slate-500">Meta: Salidas, ocio, cafés y delivery.</p>
+            </div>
+
+            <!-- Ahorro 15% -->
+            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold uppercase text-slate-600">3. Ahorro (15%)</span>
+                <span id="adv-status-ahorro" class="text-xs font-bold text-amber-600">Insuficiente</span>
+              </div>
+              <div class="text-2xl font-black text-slate-900 my-1">
+                <span id="adv-pct-ahorro">2.2%</span>
+                <span class="text-xs font-normal text-slate-500" id="adv-amt-ahorro">($40.00)</span>
+              </div>
+              <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden my-2">
+                <div id="adv-bar-ahorro" class="bg-emerald-500 h-full" style="width: 2.2%;"></div>
+              </div>
+              <p class="text-[11px] text-slate-500">Meta: Cuentas de Ahorro Caja de Ahorros y Plazo Fijo.</p>
             </div>
           </div>
 
-          <button id="btn-clear-chat" class="text-xs text-slate-400 hover:text-slate-600 p-1.5 rounded" title="Limpiar conversación">
-            <i class="fa-solid fa-arrow-rotate-right"></i>
-          </button>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center pt-4 border-t border-slate-200">
+            <div id="adv-diag-box" class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-2">
+              <!-- Renderizado por JS -->
+            </div>
+            <div class="h-56 relative flex items-center justify-center">
+              <canvas id="budgetChart"></canvas>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Chat Messages Body -->
-        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4 text-xs">
-          <!-- Mensaje inicial de bienvenida -->
+      <!-- SECCIÓN INTERNA: CHAT INTELIGENTE -->
+      <div id="advisor-content-chat" class="space-y-4 hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[550px]">
+          
+          <div class="p-4 border-b border-slate-200 bg-slate-50 rounded-t-2xl flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
+                <i class="fa-solid fa-robot"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-slate-900 text-xs">Asesor Financiero Local Caja de Ahorros</h4>
+                <p class="text-[11px] text-slate-500">Inferencia 100% en tu equipo • 0 Bytes Cloud</p>
+              </div>
+            </div>
+            <button id="btn-clear-chat" class="text-xs text-slate-400 hover:text-slate-600 p-1">
+              <i class="fa-solid fa-rotate-right"></i>
+            </button>
+          </div>
+
+          <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4 text-xs">
+            <!-- Mensajes inyectados por JS -->
+          </div>
+
+          <!-- Botones de Preguntas Rápidas -->
+          <div class="p-2 border-t border-slate-100 bg-slate-50/60 flex space-x-2 overflow-x-auto text-xs">
+            <button class="quick-prompt-btn whitespace-nowrap bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 px-3 py-1.5 rounded-full font-medium" data-prompt="¿Cómo reduzco mis gastos hormiga?">
+              🐜 ¿Cómo reduzco mis gastos hormiga?
+            </button>
+            <button class="quick-prompt-btn whitespace-nowrap bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 px-3 py-1.5 rounded-full font-medium" data-prompt="¿Cómo aplico la regla 60-25-15 con mis ingresos?">
+              ⚖️ ¿Cómo aplico la regla 60-25-15?
+            </button>
+            <button class="quick-prompt-btn whitespace-nowrap bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 px-3 py-1.5 rounded-full font-medium" data-prompt="¿Qué productos de Caja de Ahorros me convienen?">
+              🎄 Productos de Caja de Ahorros recomendados
+            </button>
+          </div>
+
+          <form id="chat-form" class="p-3 border-t border-slate-200 bg-white rounded-b-2xl flex items-center space-x-2">
+            <input 
+              type="text" 
+              id="chat-input" 
+              placeholder="Pregúntale a tu asesor de Caja de Ahorros sobre tus gastos..." 
+              class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 outline-none"
+            />
+            <button type="submit" class="bg-[#004f98] hover:bg-blue-900 text-white px-4 py-2 rounded-xl font-bold text-xs transition">
+              Preguntar
+            </button>
+          </form>
         </div>
-
-        <!-- Quick Prompts Buttons -->
-        <div class="p-2 border-t border-slate-100 bg-slate-50/50 flex space-x-2 overflow-x-auto text-xs">
-          <button class="quick-prompt-btn whitespace-nowrap bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 px-3 py-1.5 rounded-full font-medium transition" data-prompt="¿Cómo reduzco mis gastos hormiga?">
-            🐜 ¿Cómo reduzco mis gastos hormiga?
-          </button>
-          <button class="quick-prompt-btn whitespace-nowrap bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 px-3 py-1.5 rounded-full font-medium transition" data-prompt="¿Cómo aplico la regla 60-25-15 con mis ingresos?">
-            ⚖️ ¿Cómo aplico la regla 60-25-15?
-          </button>
-          <button class="quick-prompt-btn whitespace-nowrap bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 px-3 py-1.5 rounded-full font-medium transition" data-prompt="¿Qué productos de ahorro de Caja de Ahorros me recomiendas?">
-            🎄 ¿Qué productos de Caja de Ahorros me convienen?
-          </button>
-          <button class="quick-prompt-btn whitespace-nowrap bg-white border border-slate-200 hover:border-emerald-500 text-slate-700 px-3 py-1.5 rounded-full font-medium transition" data-prompt="¿Cuánto ahorraría si no pido delivery de lunes a jueves?">
-            🛵 ¿Ahorro si dejo delivery entre semana?
-          </button>
-        </div>
-
-        <!-- Chat Input Form -->
-        <form id="chat-form" class="p-3 border-t border-slate-200 bg-white rounded-b-xl flex items-center space-x-2">
-          <input 
-            type="text" 
-            id="chat-input" 
-            placeholder="Pregúntale a tu asesor local sobre tus gastos o metas..." 
-            class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 outline-none"
-            autocomplete="off"
-          />
-          <button 
-            type="submit" 
-            id="chat-send-btn"
-            class="bg-[#0A2540] hover:bg-blue-900 text-white px-4 py-2 rounded-lg font-bold text-xs transition flex items-center space-x-1"
-          >
-            <span>Preguntar</span>
-            <i class="fa-solid fa-paper-plane text-[10px]"></i>
-          </button>
-        </form>
       </div>
     </div>
 
-    <!-- SECCIÓN 5: AUDITORÍA TÉCNICA Y SOBERANÍA (JURADO ISD & CAJA DE AHORROS) -->
-    <div id="tab-audit" class="tab-content hidden space-y-6">
-      <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+    <!-- ======================================================== -->
+    <!-- VISTA 3: AUDITORÍA & SOBERANÍA TÉCNICA (JURADO ISD/CA)   -->
+    <!-- ======================================================== -->
+    <div id="view-audit" class="space-y-6 hidden">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         
         <div class="flex items-center justify-between border-b border-slate-200 pb-4 mb-4">
           <div>
@@ -555,14 +682,12 @@
             </p>
           </div>
           <span class="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1 rounded-full border border-emerald-300">
-            COMPLIANT QVAC
+            COMPLIANT QVAC SDK
           </span>
         </div>
 
-        <!-- TABLA DE REQUISITOS DEL RETO -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-xs">
-          
-          <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
             <h4 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
               <i class="fa-solid fa-check-double text-emerald-600"></i>
               <span>Regla Técnica del Reto</span>
@@ -575,7 +700,7 @@
             </div>
           </div>
 
-          <div class="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
             <h4 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
               <i class="fa-solid fa-database text-blue-600"></i>
               <span>Regla de Datos del Reto</span>
@@ -589,8 +714,8 @@
           </div>
         </div>
 
-        <!-- TELEMETRÍA EN TIEMPO REAL -->
-        <div class="bg-slate-900 text-white rounded-xl p-5 font-mono text-xs space-y-3">
+        <!-- Telemetría en vivo -->
+        <div class="bg-slate-900 text-white rounded-2xl p-5 font-mono text-xs space-y-3">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
             <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">QVAC Runtime Telemetry (Live Stream)</span>
             <span class="text-emerald-400 flex items-center space-x-1">
@@ -617,27 +742,21 @@
               <span class="text-slate-200 font-bold" id="telemetry-count">0 consultas</span>
             </div>
           </div>
-
-          <div class="pt-2 border-t border-slate-800 text-slate-400 text-[11px]">
-            <span>Ubicación de cómputo: </span>
-            <span class="text-slate-200">Local Machine Process (PID Node.js) • Sin intermediarios</span>
-          </div>
         </div>
 
-        <!-- BOTÓN DE PRUEBA DE RED PARA EL AUDITOR -->
+        <!-- Botón de auto-auditoría -->
         <div class="mt-6 pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <div class="text-slate-500">
             <i class="fa-solid fa-terminal mr-1"></i>
-            Puedes correr en consola el script de prueba: <code class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded font-mono font-bold">npm test</code>
+            Comando de verificación en terminal: <code class="bg-slate-100 text-slate-800 px-2 py-0.5 rounded font-mono font-bold">npm test</code>
           </div>
-          <button id="btn-run-self-audit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-lg transition flex items-center space-x-2">
+          <button id="btn-run-self-audit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl transition flex items-center space-x-2">
             <i class="fa-solid fa-circle-check"></i>
             <span>Verificar Aislamiento de Red Ahora</span>
           </button>
         </div>
 
-        <!-- Contenedor resultado de auto-auditoría -->
-        <div id="self-audit-result" class="hidden mt-4 p-4 rounded-lg bg-emerald-50 border border-emerald-300 text-xs text-emerald-900">
+        <div id="self-audit-result" class="hidden mt-4 p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-xs text-emerald-900">
           <div class="font-bold flex items-center space-x-2">
             <i class="fa-solid fa-shield-check text-emerald-600 text-base"></i>
             <span>Auditoría de Privacidad Superada Exitosamente:</span>
@@ -652,13 +771,13 @@
     </div>
   </main>
 
-  <!-- MODAL DE CARGA DE DATOS SINTÉTICOS PROPIOS (CSV/JSON) -->
+  <!-- MODAL DE CARGA DE DATOS PROPIOS -->
   <div id="upload-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <h3 class="font-bold text-slate-900 text-base flex items-center space-x-2">
-          <i class="fa-solid fa-file-import text-emerald-600"></i>
-          <span>Cargar Datos Sintéticos Personalizados</span>
+          <i class="fa-solid fa-file-import text-[#004f98]"></i>
+          <span>Cargar Datos Sintéticos de Prueba</span>
         </h3>
         <button id="btn-close-modal" class="text-slate-400 hover:text-slate-600">
           <i class="fa-solid fa-xmark text-lg"></i>
@@ -666,46 +785,53 @@
       </div>
 
       <p class="text-xs text-slate-500">
-        El jurado puede ingresar transacciones sintéticas en formato JSON o pegar un CSV para probar cualquier caso de prueba bancario.
+        Pega transacciones en JSON para probar cualquier caso de prueba para el jurado.
       </p>
 
       <div class="space-y-3 text-xs">
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Nombre del Perfil de Prueba:</label>
-          <input type="text" id="custom-profile-name" value="Evaluación Jurado ISD" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" />
+          <input type="text" id="custom-profile-name" value="Evaluación Jurado ISD" class="w-full border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-[#004f98] outline-none" />
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Ingreso Mensual Estimado ($):</label>
-          <input type="number" id="custom-monthly-income" value="2000" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none" />
+          <label class="block font-semibold text-slate-700 mb-1">Ingreso Mensual ($):</label>
+          <input type="number" id="custom-monthly-income" value="2000" class="w-full border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-[#004f98] outline-none" />
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Transacciones Sintéticas (JSON):</label>
-          <textarea id="custom-transactions-json" rows="6" class="w-full font-mono text-[11px] border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+          <textarea id="custom-transactions-json" rows="6" class="w-full font-mono text-[11px] border border-slate-300 rounded-xl p-2.5 focus:ring-2 focus:ring-[#004f98] outline-none"></textarea>
         </div>
       </div>
 
       <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
-        <button id="btn-cancel-modal" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-        <button id="btn-submit-custom-data" class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition">Analizar Localmente</button>
+        <button id="btn-cancel-modal" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+        <button id="btn-submit-custom-data" class="px-4 py-2 text-xs font-bold text-white bg-[#004f98] hover:bg-blue-900 rounded-xl transition">Analizar Localmente</button>
       </div>
     </div>
   </div>
 
-  <!-- FOOTER BANCARIO -->
-  <footer class="bg-[#0A2540] text-slate-400 text-xs py-4 border-t border-blue-900/60 mt-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <div>
-        <p class="font-medium text-slate-300">CajaLocal AI © 2026 • Desarrollado para el Reto Corporativo de Caja de Ahorros</p>
-        <p class="text-[11px] text-slate-400">Inteligencia Local y Descentralizada en el Dispositivo con QVAC SDK (Tether)</p>
+  <!-- ============================================================ -->
+  <!-- 4. FOOTER BANCARIO OFICIAL CAJA DE AHORROS                   -->
+  <!-- ============================================================ -->
+  <footer class="ca-header text-blue-100 text-xs py-5 border-t border-blue-900 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-7 h-7 rounded-full bg-white flex items-center justify-center">
+          <span class="text-[#004f98] font-black text-sm lowercase">ca</span>
+        </div>
+        <div>
+          <p class="font-bold text-white">Caja de Ahorros • El Banco de la Familia Panameña</p>
+          <p class="text-[10px] text-blue-200">CajaLocal AI • Solución construida con QVAC SDK para el Reto Corporativo</p>
+        </div>
       </div>
       <div class="flex items-center space-x-4 text-[11px]">
-        <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-lock mr-1"></i> Cero fuga de datos</span>
-        <span>Alineado con Caja de Ahorros</span>
+        <span class="text-emerald-300 font-semibold"><i class="fa-solid fa-lock mr-1"></i> Inferencia 100% en tu Dispositivo</span>
+        <span class="text-blue-300">Regulado por la Superintendencia de Bancos de Panamá</span>
       </div>
     </div>
   </footer>
 
-  <!-- Scripts de la Aplicación -->
+  <!-- Scripts -->
   <script src="/js/charts.js"></script>
   <script src="/js/app.js"></script>
 </body>
