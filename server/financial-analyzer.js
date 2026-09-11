@@ -255,6 +255,12 @@ export function analyzeFinancialHealth(transactions, monthlyIncome = null, micro
     }
   };
 
+  // 5. Proyección Quincenal Día a Día (Pista de Aterrizaje)
+  const quincenaRunway = calculateQuincenaRunway(effectiveIncome, totalExpenses);
+
+  // 6. Simulador de Escenarios de Ahorro
+  const savingsScenarios = calculateSavingsScenarios(expensesByCategory, potentialSavingsWith2DaysRule);
+
   return {
     summary: {
       totalIncome: Number(totalIncome.toFixed(2)),
@@ -292,8 +298,113 @@ export function analyzeFinancialHealth(transactions, monthlyIncome = null, micro
       }
     },
     cajaDeAhorrosProducts,
+    quincenaRunway,
+    savingsScenarios,
     expensesByCategory,
     normalizedTransactions
+  };
+}
+
+/**
+ * Calcula la proyección de liquidez día a día hasta la próxima quincena panameña (día 15 o fin de mes).
+ */
+export function calculateQuincenaRunway(effectiveIncome, totalExpenses, refDate = new Date()) {
+  const currentDay = refDate.getDate();
+  const currentMonth = refDate.getMonth();
+  const currentYear = refDate.getFullYear();
+  const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+  let targetDay = 15;
+  let isEndOfMonth = false;
+
+  if (currentDay < 15) {
+    targetDay = 15;
+  } else if (currentDay === 15) {
+    targetDay = lastDayOfMonth;
+    isEndOfMonth = true;
+  } else if (currentDay < lastDayOfMonth) {
+    targetDay = lastDayOfMonth;
+    isEndOfMonth = true;
+  } else {
+    targetDay = 15;
+  }
+
+  let daysRemaining = targetDay >= currentDay ? (targetDay - currentDay) : (lastDayOfMonth - currentDay + 15);
+  if (daysRemaining <= 0) daysRemaining = 15;
+
+  const quincenaIncome = effectiveIncome / 2;
+  const estimatedLiquidBalance = Math.max(120, quincenaIncome - (totalExpenses / 2 * 0.70));
+  const safeDailySpend = Number((estimatedLiquidBalance / daysRemaining).toFixed(2));
+  
+  const dayByDay = [];
+  let runningBalance = estimatedLiquidBalance;
+  const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+
+  for (let i = 0; i <= daysRemaining; i++) {
+    const d = new Date(currentYear, currentMonth, currentDay + i);
+    const label = `${d.getDate()} ${monthNames[d.getMonth()]}`;
+    const isPayday = (i === daysRemaining);
+    
+    if (i > 0) {
+      runningBalance = Math.max(0, runningBalance - safeDailySpend);
+    }
+    
+    dayByDay.push({
+      dateLabel: label,
+      projectedBalance: isPayday ? Number((runningBalance + quincenaIncome).toFixed(2)) : Number(runningBalance.toFixed(2)),
+      safeSpendAllowed: safeDailySpend,
+      isPayday
+    });
+  }
+
+  const nextPaydayLabel = isEndOfMonth 
+    ? `${lastDayOfMonth} de ${refDate.toLocaleString('es-ES', { month: 'long' })}` 
+    : `15 de ${refDate.toLocaleString('es-ES', { month: 'long' })}`;
+
+  return {
+    daysRemaining,
+    nextPaydayLabel,
+    quincenaIncome: Number(quincenaIncome.toFixed(2)),
+    estimatedLiquidBalance: Number(estimatedLiquidBalance.toFixed(2)),
+    safeDailySpend,
+    status: safeDailySpend >= 18 ? "Saludable" : (safeDailySpend >= 10 ? "Moderado" : "Ajustado"),
+    dayByDay
+  };
+}
+
+/**
+ * Calcula escenarios interactivos de ahorro proyectados a productos de Caja de Ahorros.
+ */
+export function calculateSavingsScenarios(expensesByCategory = {}, potentialSavingsWith2DaysRule = 148.50) {
+  const cafeTotal = expensesByCategory["Café y Bebidas"] || 65.00;
+  const deliveryTotal = expensesByCategory["Delivery Comida"] || 95.00;
+  const snacksTotal = expensesByCategory["Snacks / Kiosco"] || 58.45;
+
+  const rescuedModerate = (cafeTotal * 0.30) + (deliveryTotal * 0.30) + (snacksTotal * 0.30);
+  const rescuedOptimal = potentialSavingsWith2DaysRule;
+  const rescuedAggressive = (cafeTotal * 0.75) + (deliveryTotal * 0.75) + (snacksTotal * 0.75);
+
+  const formatScenario = (name, desc, monthly) => ({
+    name,
+    description: desc,
+    monthlySavings: Number(monthly.toFixed(2)),
+    yearlySavings: Number((monthly * 12).toFixed(2)),
+    navidenaPayout: Number((monthly * 11.5).toFixed(2)),
+    plazoFijo3Years: Number((monthly * 36 * 1.045).toFixed(2)),
+    monthsToMortgageDownpayment: Math.max(6, Math.ceil(3500 / Math.max(1, monthly)))
+  });
+
+  return {
+    breakdown: {
+      cafeMonthly: Number(cafeTotal.toFixed(2)),
+      deliveryMonthly: Number(deliveryTotal.toFixed(2)),
+      snacksMonthly: Number(snacksTotal.toFixed(2))
+    },
+    escenarios: {
+      moderado: formatScenario("Escenario Moderado", "Recorta 30% en delivery y cafés", rescuedModerate),
+      optimo: formatScenario("Regla 2 Días de Ocio", "Consumo de ocio solo viernes y sábado", rescuedOptimal),
+      intenso: formatScenario("Meta Acelerada", "Recorta 75% en antojos para meta de casa propia", rescuedAggressive)
+    }
   };
 }
 
@@ -301,29 +412,11 @@ export function analyzeFinancialHealth(transactions, monthlyIncome = null, micro
  * Genera el contexto optimizado para el prompt del LLM QVAC.
  */
 export function buildLlmPromptContext(analysis, profileName = "Cliente de Caja de Ahorros") {
-  const { summary, gastosHormiga, rule60_25_15, cajaDeAhorrosProducts } = analysis;
+  const { summary, gastosHormiga, rule60_25_15, cajaDeAhorrosProducts, quincenaRunway } = analysis;
 
-  return `
---- DATOS FINANCIEROS AUDITADOS LOCALMENTE PARA ${profileName.toUpperCase()} ---
-* Ingresos Mensuales: $${summary.effectiveIncome.toFixed(2)}
-* Gastos Totales del Periodo: $${summary.totalExpenses.toFixed(2)}
-* Balance Neto: $${summary.netBalance.toFixed(2)}
-* Puntuación de Salud Financiera: ${summary.healthScore}/100
-
-[DETECCIÓN DE GASTOS HORMIGA]
-- Total detectado en micro-gastos: $${gastosHormiga.totalMicroAmount.toFixed(2)} (${gastosHormiga.percentageOfIncome}% de tus ingresos).
-- Cantidad de transacciones hormiga: ${gastosHormiga.microExpenseCount} compras (cafés, delivery, golosinas, kioscos).
-- Fuga proyectada al año: $${gastosHormiga.projectedYearlyMicro.toFixed(2)} al año.
-- Distribución semanal: $${gastosHormiga.weekdayTotal.toFixed(2)} de Lunes a Jueves vs $${gastosHormiga.weekendTotal.toFixed(2)} de Viernes a Domingo.
-- REGLA DE 2 DÍAS DE GASTO: Si limitas gastos en ocio/café/delivery solo a 2 días a la semana (ej. viernes y sábado), ahorrarías aproximadamente $${gastosHormiga.potentialMonthlySavingsWith2DaysRule.toFixed(2)} al mes ($${gastosHormiga.potentialYearlySavings.toFixed(2)} al año).
-
-[DISTRIBUCIÓN REGLA 60-25-15]
-- Necesidades (Meta: 60% | $${rule60_25_15.idealBudget.necesidades.toFixed(2)}): Actual ${rule60_25_15.actualPercentages.necesidades}% ($${rule60_25_15.actual.necesidades.toFixed(2)}) -> Estado: ${rule60_25_15.complianceStatus.necesidades}
-- Deseos (Meta: 25% | $${rule60_25_15.idealBudget.deseos.toFixed(2)}): Actual ${rule60_25_15.actualPercentages.deseos}% ($${rule60_25_15.actual.deseos.toFixed(2)}) -> Estado: ${rule60_25_15.complianceStatus.deseos}
-- Ahorro (Meta: 15% | $${rule60_25_15.idealBudget.ahorro.toFixed(2)}): Actual ${rule60_25_15.actualPercentages.ahorro}% ($${rule60_25_15.actual.ahorro.toFixed(2)}) -> Estado: ${rule60_25_15.complianceStatus.ahorro}
-
-[PRODUCTOS SUGERIDOS DE CAJA DE AHORROS]
-- ${cajaDeAhorrosProducts.cuentaNavidena.name}: Podrías acumular aprox. $${cajaDeAhorrosProducts.cuentaNavidena.yearEndPayout.toFixed(2)} para fin de año.
-- ${cajaDeAhorrosProducts.plazoFijo.name}: Proyección a 3 años de $${cajaDeAhorrosProducts.plazoFijo.projected3Years.toFixed(2)}.
-`;
+  return `Perfil: ${profileName} | Ingreso: $${summary.effectiveIncome} | Gastos: $${summary.totalExpenses}
+Gastos hormiga: $${gastosHormiga.totalMicroAmount}/mes. Ahorro con Regla de 2 días: $${gastosHormiga.potentialMonthlySavingsWith2DaysRule}/mes.
+Presupuesto 60-25-15: Necesidades=${rule60_25_15.actualPercentages.necesidades}%, Deseos=${rule60_25_15.actualPercentages.deseos}%, Ahorro=${rule60_25_15.actualPercentages.ahorro}%.
+Quincena: faltan ${quincenaRunway?.daysRemaining || 4} días (gasto seguro: $${quincenaRunway?.safeDailySpend || 20}/día).
+Productos CA: Cuenta Navideña (aguinaldo ~$${cajaDeAhorrosProducts.cuentaNavidena.yearEndPayout}) | Plazo Fijo (~$${cajaDeAhorrosProducts.plazoFijo.projected3Years}).`;
 }

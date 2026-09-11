@@ -155,6 +155,25 @@ Directrices de respuesta:
     };
   }
 
+  /**
+   * Genera un dictamen ejecutivo y empático con inferencia on-device de QVAC.
+   */
+  async generateDiagnosticSummary(analysis, profileName = "Cliente", requestedModel = null) {
+    const days = analysis.quincenaRunway?.daysRemaining || 4;
+    const safeDaily = analysis.quincenaRunway?.safeDailySpend || 18.50;
+    const prompt = `Analiza la situación financiera de ${profileName}. 
+Gastos hormiga detectados: $${analysis.gastosHormiga.totalMicroAmount.toFixed(2)}/mes.
+Gasto en Deseos: ${analysis.rule60_25_15.actualPercentages.deseos}% (meta 25%).
+Liquidez hasta próxima quincena: le quedan ${days} días con un gasto diario seguro de $${safeDaily}/día.
+
+Redacta un dictamen ejecutivo y empático de exactamente 3 puntos breves como Cashy AI de Caja de Ahorros:
+1. Resumen de liquidez hasta la quincena.
+2. Aplicación práctica de la regla de 2 días de ocio para rescatar $${analysis.gastosHormiga.potentialMonthlySavingsWith2DaysRule.toFixed(2)}.
+3. Recomendación de producto de Caja de Ahorros (Cuenta Navideña o Plazo Fijo).`;
+
+    return await this.askAdvisor(prompt, analysis, profileName, [], requestedModel);
+  }
+
   getTelemetryStatus() {
     return {
       qvacActive: true,

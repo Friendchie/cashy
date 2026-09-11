@@ -79,6 +79,20 @@ function runFinancialTests() {
 
   console.log("  ✅ Transacciones en bruto clasificadas automáticamente en Necesidades, Deseos y Gastos Hormiga.");
 
+  console.log("\n[6/7] Probando Proyección Quincenal Día a Día (Pista de Aterrizaje)...");
+  assert.ok(rawAnalysis.quincenaRunway, "Debe incluir objeto de proyección quincenal");
+  assert.ok(rawAnalysis.quincenaRunway.daysRemaining > 0, "Días hasta quincena deben ser mayores a cero");
+  assert.ok(rawAnalysis.quincenaRunway.safeDailySpend > 0, "Gasto diario seguro debe ser positivo");
+  assert.ok(Array.isArray(rawAnalysis.quincenaRunway.dayByDay), "Curva día a día debe ser un array");
+  console.log(`  ✅ Proyección quincenal validada: ${rawAnalysis.quincenaRunway.daysRemaining} días restantes, Gasto seguro: $${rawAnalysis.quincenaRunway.safeDailySpend}/día.`);
+
+  console.log("\n[7/7] Probando Simulador de Escenarios de Ahorro What-If...");
+  assert.ok(rawAnalysis.savingsScenarios, "Debe incluir escenarios de ahorro");
+  assert.ok(rawAnalysis.savingsScenarios.escenarios.moderado.monthlySavings > 0, "Escenario moderado debe tener ahorro");
+  assert.ok(rawAnalysis.savingsScenarios.escenarios.optimo.monthlySavings > 0, "Escenario óptimo debe tener ahorro");
+  assert.ok(rawAnalysis.savingsScenarios.escenarios.intenso.monthlySavings > 0, "Escenario intenso debe tener ahorro");
+  console.log("  ✅ Escenarios de ahorro simulados y vinculados a metas de Caja de Ahorros.");
+
   console.log("\n============================================================");
   console.log("🎉 TODAS LAS PRUEBAS DE REGLAS FINANCIERAS PASARON EXITOSAMENTE");
   console.log("============================================================\n");

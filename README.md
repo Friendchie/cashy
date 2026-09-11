@@ -158,12 +158,6 @@ Este comando ejecuta dos suites de auditoría:
 
 ---
 
-## 🎬 8. Video Demostrativo (Máximo 5 Minutos)
-El guion detallado y la estructura para el video de presentación del jurado se encuentra disponible en:  
-👉 **[PITCH_AND_DEMO_SCRIPT.md](PITCH_AND_DEMO_SCRIPT.md)**
-
----
-
-## ⚖️ 9. Licencia
+## ⚖️ 8. Licencia
 Este proyecto está bajo la licencia [MIT](LICENSE).
 Propiedad intelectual y desarrollo original por el equipo participante del Reto Caja de Ahorros 2026.

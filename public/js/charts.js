@@ -192,3 +192,70 @@ export function renderBudgetChart(canvasId, ruleData) {
     }
   });
 }
+
+let runwayChartInstance = null;
+
+/**
+ * Renderiza el gráfico de Pista de Aterrizaje Quincenal (Curva de saldo día a día).
+ */
+export function renderRunwayChart(canvasId, dayByDayData) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+
+  if (runwayChartInstance) {
+    runwayChartInstance.destroy();
+  }
+
+  const labels = (dayByDayData || []).map(d => d.dateLabel);
+  const balances = (dayByDayData || []).map(d => d.projectedBalance);
+
+  runwayChartInstance = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Saldo Proyectado ($)",
+        data: balances,
+        borderColor: "#004f98",
+        backgroundColor: "rgba(0, 79, 152, 0.08)",
+        fill: true,
+        tension: 0.35,
+        pointBackgroundColor: (dayByDayData || []).map(d => d.isPayday ? "#10b981" : "#004f98"),
+        pointBorderColor: "#ffffff",
+        pointBorderWidth: 2,
+        pointRadius: (dayByDayData || []).map(d => d.isPayday ? 6 : 4),
+        pointHoverRadius: 7
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (item) => {
+              const itemData = dayByDayData[item.dataIndex];
+              const paydayNote = itemData?.isPayday ? " 💰 (Cobro de Quincena)" : "";
+              return ` Saldo Proyectado: $${item.raw.toFixed(2)}${paydayNote}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: {
+            callback: (v) => `$${v}`,
+            font: { size: 10 }
+          },
+          grid: { color: "#f1f5f9" }
+        },
+        x: {
+          ticks: { font: { size: 10 } },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}

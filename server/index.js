@@ -139,6 +139,32 @@ app.post("/api/chat", async (req, res) => {
 });
 
 /**
+ * POST /api/diagnostico-ia
+ * Genera un dictamen cualitativo y empático con el LLM QVAC en tiempo real.
+ */
+app.post("/api/diagnostico-ia", async (req, res) => {
+  try {
+    const { model } = req.body || {};
+    const currentProfile = PROFILES[currentProfileId] || { name: "Cliente Caja de Ahorros" };
+    const analysis = analyzeFinancialHealth(currentTransactions, currentMonthlyIncome);
+
+    const result = await qvacAgent.generateDiagnosticSummary(analysis, currentProfile.name, model);
+    res.json({
+      success: true,
+      diagnostic: result.reply,
+      telemetry: result.telemetry
+    });
+  } catch (err) {
+    console.error("[API Diagnostico Error]:", err);
+    res.status(500).json({
+      success: false,
+      error: "Error al generar dictamen con el modelo local QVAC.",
+      details: err.message
+    });
+  }
+});
+
+/**
  * GET /api/models
  * Retorna los modelos disponibles en el runtime local QVAC.
  */

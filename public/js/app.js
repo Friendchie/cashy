@@ -3,7 +3,7 @@
  * Controlador oficial para la interfaz de Banca en Línea de Caja de Ahorros con Cashy AI.
  */
 
-import { renderDayOfWeekChart, renderBudgetChart } from "./charts.js";
+import { renderDayOfWeekChart, renderBudgetChart, renderRunwayChart } from "./charts.js";
 
 // Estado de la aplicación
 let currentProfile = null;
@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initChat();
   initCustomDataModal();
   initSelfAudit();
+  initSavingsSimulator();
+  initAiDiagnosticButton();
 
   // Exponer función global para abrir chat desde botones de la UI
   window.openChatWithPrompt = (prompt) => {
@@ -126,6 +128,7 @@ function initAdvisorSubTabs() {
   const subTabs = [
     { btn: "adv-tab-hormiga", content: "advisor-content-hormiga" },
     { btn: "adv-tab-budget", content: "advisor-content-budget" },
+    { btn: "adv-tab-runway", content: "advisor-content-runway" },
     { btn: "adv-tab-chat", content: "advisor-content-chat" }
   ];
 
@@ -148,6 +151,8 @@ function initAdvisorSubTabs() {
           renderDayOfWeekChart("dayOfWeekChart", currentAnalysis.gastosHormiga.byDay);
         } else if (tab.content === "advisor-content-budget") {
           renderBudgetChart("budgetChart", currentAnalysis.rule60_25_15);
+        } else if (tab.content === "advisor-content-runway" && currentAnalysis.quincenaRunway) {
+          renderRunwayChart("runwayChart", currentAnalysis.quincenaRunway.dayByDay);
         }
       }
     });
@@ -269,11 +274,38 @@ function updateUI(profile, analysis) {
     <p>• ${isAhorroUnder ? `⚠️ Ahorras un <strong>${rule60_25_15.actualPercentages.ahorro}%</strong> (meta: 15%). Redirigiendo el ahorro de la Regla de 2 Días ($${gastosHormiga.potentialMonthlySavingsWith2DaysRule.toFixed(2)}/mes) cumplirás la meta mensual con creces.` : `🎉 ¡Tu disciplina de ahorro es óptima para tus proyectos familiares!`}</p>
   `;
 
-  // 4. Gráficos
+  // 4. Vista 'Asesor QVAC - Pista Quincenal & Escenarios'
+  if (analysis.quincenaRunway) {
+    const q = analysis.quincenaRunway;
+    const nextPaydayEl = document.getElementById("runway-next-payday");
+    const daysRemainingEl = document.getElementById("runway-days-remaining");
+    const safeDailyEl = document.getElementById("runway-safe-daily");
+    const quincenaAmtEl = document.getElementById("runway-quincena-amount");
+    const statusBadgeEl = document.getElementById("runway-status-badge");
+
+    if (nextPaydayEl) nextPaydayEl.textContent = q.nextPaydayLabel;
+    if (daysRemainingEl) daysRemainingEl.textContent = `${q.daysRemaining} días`;
+    if (safeDailyEl) safeDailyEl.textContent = `$${q.safeDailySpend.toFixed(2)}`;
+    if (quincenaAmtEl) quincenaAmtEl.textContent = `$${q.quincenaIncome.toFixed(2)}`;
+    if (statusBadgeEl) {
+      statusBadgeEl.textContent = `Estado: ${q.status}`;
+      statusBadgeEl.className = q.status === "Saludable" 
+        ? "bg-emerald-500/20 text-emerald-300 text-[11px] font-bold px-2 py-0.5 rounded-full"
+        : "bg-amber-500/20 text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-full";
+    }
+  }
+
+  // Actualizar Simulador con datos del perfil
+  updateSimulatorDisplay(analysis);
+
+  // 5. Gráficos
   renderDayOfWeekChart("dayOfWeekChart", gastosHormiga.byDay);
   renderBudgetChart("budgetChart", rule60_25_15);
+  if (analysis.quincenaRunway) {
+    renderRunwayChart("runwayChart", analysis.quincenaRunway.dayByDay);
+  }
 
-  // 5. Reiniciar Chat con Saludo Contextualizado
+  // 6. Reiniciar Chat con Saludo Contextualizado
   resetChat(profile, analysis);
 }
 
@@ -550,7 +582,111 @@ function initSelfAudit() {
 }
 
 // ==========================================
-// 10. UTILIDADES FORMATO MARKDOWN
+// 10. SIMULADOR DE ESCENARIOS WHAT-IF
+// ==========================================
+function initSavingsSimulator() {
+  const sliderCafe = document.getElementById("slider-cafe");
+  const sliderDelivery = document.getElementById("slider-delivery");
+  const sliderSnacks = document.getElementById("slider-snacks");
+
+  const onSliderChange = () => {
+    if (!currentAnalysis) return;
+    updateSimulatorDisplay(currentAnalysis);
+  };
+
+  sliderCafe?.addEventListener("input", onSliderChange);
+  sliderDelivery?.addEventListener("input", onSliderChange);
+  sliderSnacks?.addEventListener("input", onSliderChange);
+}
+
+function updateSimulatorDisplay(analysis) {
+  if (!analysis) return;
+  const sliderCafe = document.getElementById("slider-cafe");
+  const sliderDelivery = document.getElementById("slider-delivery");
+  const sliderSnacks = document.getElementById("slider-snacks");
+
+  const valCafe = Number(sliderCafe?.value || 50);
+  const valDelivery = Number(sliderDelivery?.value || 50);
+  const valSnacks = Number(sliderSnacks?.value || 50);
+
+  const labelCafe = document.getElementById("label-slider-cafe");
+  const labelDelivery = document.getElementById("label-slider-delivery");
+  const labelSnacks = document.getElementById("label-slider-snacks");
+
+  if (labelCafe) labelCafe.textContent = `${valCafe}% menos`;
+  if (labelDelivery) labelDelivery.textContent = `${valDelivery}% menos`;
+  if (labelSnacks) labelSnacks.textContent = `${valSnacks}% menos`;
+
+  const cafeTotal = analysis.expensesByCategory?.["Café y Bebidas"] || 65.00;
+  const deliveryTotal = analysis.expensesByCategory?.["Delivery Comida"] || 95.00;
+  const snacksTotal = analysis.expensesByCategory?.["Snacks / Kiosco"] || 58.45;
+
+  const rescuedMonthly = (cafeTotal * (valCafe / 100)) + (deliveryTotal * (valDelivery / 100)) + (snacksTotal * (valSnacks / 100));
+  const rescuedYearly = rescuedMonthly * 12;
+  const navidenaPayout = rescuedMonthly * 11.5;
+  const mortgageMonths = Math.max(6, Math.ceil(3500 / Math.max(1, rescuedMonthly)));
+
+  const monthlyEl = document.getElementById("sim-rescued-monthly");
+  const yearlyEl = document.getElementById("sim-rescued-yearly");
+  const navidenaEl = document.getElementById("sim-navidena");
+  const mortgageEl = document.getElementById("sim-mortgage-months");
+
+  if (monthlyEl) monthlyEl.textContent = `+$${rescuedMonthly.toFixed(2)}`;
+  if (yearlyEl) yearlyEl.textContent = `+$${rescuedYearly.toFixed(2)}`;
+  if (navidenaEl) navidenaEl.textContent = `$${navidenaPayout.toFixed(2)}`;
+  if (mortgageEl) mortgageEl.textContent = `${mortgageMonths} Meses`;
+}
+
+// ==========================================
+// 11. DICTAMEN EJECUTIVO CON IA ON-DEVICE
+// ==========================================
+function initAiDiagnosticButton() {
+  const btn = document.getElementById("btn-generate-ai-diag");
+  const textSpan = document.getElementById("btn-generate-ai-text");
+  const container = document.getElementById("ai-diag-content");
+  const placeholder = document.getElementById("ai-diag-placeholder");
+  if (!btn) return;
+
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    textSpan.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Razonando con QVAC On-Device...`;
+
+    try {
+      const selectedModel = document.getElementById("select-model")?.value || "llama-3.2-1b";
+      const res = await fetch("/api/diagnostico-ia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: selectedModel })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        if (placeholder) placeholder.classList.add("hidden");
+        if (container) {
+          container.classList.remove("hidden");
+          const html = formatMarkdown(data.diagnostic);
+          container.innerHTML = `
+            <div class="text-slate-800 text-xs leading-relaxed space-y-1">${html}</div>
+            <div class="mt-2 pt-2 border-t border-slate-200/80 flex items-center justify-between text-[10px] text-slate-400 font-mono">
+              <span>⚙️ ${data.telemetry?.engine || 'QVAC'} (${data.telemetry?.latencyMs || 2000}ms)</span>
+              <span class="text-emerald-700 font-bold">🔒 0 Bytes Cloud</span>
+            </div>
+          `;
+        }
+      } else {
+        alert("Error generando dictamen con IA: " + (data.error || "Intente nuevamente"));
+      }
+    } catch (err) {
+      alert("Error de conexión local con QVAC: " + err.message);
+    } finally {
+      btn.disabled = false;
+      textSpan.textContent = "Regenerar Dictamen con Cashy AI";
+    }
+  });
+}
+
+// ==========================================
+// 13. UTILIDADES FORMATO MARKDOWN
 // ==========================================
 function formatMarkdown(text) {
   if (!text) return "";
