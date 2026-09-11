@@ -1,4 +1,4 @@
-# 🏦 CajaLocal AI: Inteligencia Financiera Local y Descentralizada para Caja de Ahorros
+# 🏦 Cashy AI: Inteligencia Financiera Local y Descentralizada para Caja de Ahorros
 
 [![QVAC SDK](https://img.shields.io/badge/Powered%20by-QVAC%20SDK-00A86B?style=for-the-badge)](https://qvac.tether.io)
 [![Inferencia](https://img.shields.io/badge/Inferencia-100%25%20On--Device-0A2540?style=for-the-badge)](#)
@@ -36,9 +36,9 @@
 
 ---
 
-## 💡 3. La Solución: CajaLocal AI con QVAC SDK
+## 💡 3. La Solución: Cashy AI con QVAC SDK
 
-**CajaLocal AI** es un asesor financiero personal autónomo integrado en la banca en línea que **corre 100% en el dispositivo del cliente** mediante el **SDK de QVAC** (`@qvac/sdk`).
+**Cashy AI** es un asesor financiero personal autónomo integrado en la banca en línea que **corre 100% en el dispositivo del cliente** mediante el **SDK de QVAC** (`@qvac/sdk`).
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
@@ -80,12 +80,22 @@
 
 ---
 
-## ⚡ 4. Rendimiento e Impacto en Dispositivos (Edge AI)
-Una de las mayores preocupaciones al ejecutar IA local en dispositivos móviles es el consumo de batería y memoria. **CajaLocal AI** está diseñado para ser altamente eficiente basándose en tres pilares:
+## ⚡ 4. Arquitectura Multi-Modelo y Rendimiento (Edge AI 1B, 2B y 3B)
+Una de las mayores preocupaciones al ejecutar IA local en dispositivos bancarios es el equilibrio entre **calidad de razonamiento** y **consumo de hardware**. **Cashy AI** resuelve esto integrando soporte dinámico para modelos de 1B, 2B y 3B parámetros a través de QVAC:
 
-1. **Modelo Ultra-Ligero (Llama 3.2 1B Q4_0):** Utilizamos el modelo Llama 3.2 de 1 billón de parámetros, diseñado específicamente por Meta para *Edge Computing*. Al estar cuantizado a 4 bits, ocupa **menos de 1 GB de memoria RAM**, permitiendo que cualquier smartphone moderno gama media lo ejecute sin saturarse.
-2. **Delegación Peer-to-Peer (Tethering):** Aprovechando la cláusula *"delegada entre pares"* del reto, si un teléfono carece de recursos, QVAC delega el cómputo de la inferencia a un nodo cercano (como un kiosco de sucursal de Caja de Ahorros) en la misma red local. Los datos jamás van a la nube.
-3. **Ejecución On-Demand:** La IA no corre en segundo plano; solo utiliza ciclos de CPU/NPU cuando el usuario interactúa activamente en el chat, preservando la batería.
+1. **🧠 Salamandra 2B (2 Billones de Parámetros - Modelo Principal):**
+   * Desarrollado específicamente con enfoque nativo en español por el Barcelona Supercomputing Center (BSC).
+   * **Ventaja crítica:** Supera las limitaciones léxicas de los modelos anglosajones pequeños (evitando alucinaciones de traducción como confundir *"aumento"* con *"ahorro"*).
+   * Mayor capacidad de razonamiento para explicar diversas metodologías presupuestarias (Regla 60-25-15, 50-30-20, Kakebo, sobres) y productos de Caja de Ahorros.
+   * Tamaño optimizado en memoria: ~1.4 GB RAM mediante cuantización 4-bit (`Q4`).
+2. **🚀 BitNet 3B (3 Billones de Parámetros):**
+   * Configurado para terminales de sucursal o dispositivos de gama alta que buscan la máxima profundidad analítica on-device.
+3. **⚡ Llama 3.2 1B (1 Billón de Parámetros - Modo Ultraligero / Respaldo):**
+   * Modelo ultra-compacto (<750 MB RAM) diseñado por Meta para smartphones de gama de entrada o modo offline de ultra-bajo consumo de batería.
+4. **Delegación Peer-to-Peer (Tethering):**
+   * Aprovechando la cláusula *"delegada entre pares"* del reto, si un teléfono carece de recursos, QVAC delega el cómputo de la inferencia a un nodo cercano (como un kiosco de sucursal de Caja de Ahorros) en la misma red local. Los datos jamás van a la nube.
+5. **Ejecución On-Demand:**
+   * La IA no corre en segundo plano; solo utiliza ciclos de GPU/NPU cuando el usuario interactúa activamente en el chat, preservando la batería.
 
 ---
 

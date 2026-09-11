@@ -1,7 +1,7 @@
 @echo off
 set "PATH=%PATH%;C:\Program Files\nodejs"
 echo ======================================================
-echo 🏦 Iniciando CajaLocal AI (Banca en Linea - Asesor QVAC)
+echo 🏦 Iniciando Cashy AI (Banca en Linea - Asesor QVAC)
 echo ======================================================
 
 echo Iniciando el Servidor de Inteligencia Artificial (QVAC OpenAI-compatible) en el puerto 11434...

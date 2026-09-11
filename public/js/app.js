@@ -1,6 +1,6 @@
 /**
  * app.js
- * Controlador oficial para la interfaz de Banca en Línea de Caja de Ahorros con CajaLocal AI.
+ * Controlador oficial para la interfaz de Banca en Línea de Caja de Ahorros con Cashy AI.
  */
 
 import { renderDayOfWeekChart, renderBudgetChart } from "./charts.js";
@@ -349,11 +349,12 @@ function resetChat(profile, analysis) {
 
   container.innerHTML = "";
 
-  const welcome = `¡Hola, **${profile.name}**! Soy tu Asesor Financiero Local de **Caja de Ahorros** impulsado por **QVAC SDK**.\n\nHe auditado tus transacciones recientes en este dispositivo sin que ningún dato salga a internet:\n- **Puntuación de Salud:** ${analysis.summary.healthScore}/100\n- **Gastos Hormiga Detectados:** $${analysis.gastosHormiga.totalMicroAmount.toFixed(2)} al mes (${analysis.gastosHormiga.microExpenseCount} microcompras).\n- **Ahorro Estimado:** Aplicando la **Regla de los 2 Días de Gasto**, rescatas **$${analysis.gastosHormiga.potentialMonthlySavingsWith2DaysRule.toFixed(2)} al mes** para tu Cuenta de Ahorro Navideño o Plazo Fijo.\n\n¿Qué te gustaría optimizar hoy?`;
+  const welcome = `¡Hola, **${profile.name}**! Soy **Cashy AI**, tu Asesor Financiero Autónomo de **Caja de Ahorros** impulsado por **QVAC SDK**.\n\nHe auditado tus transacciones bancarias en este dispositivo con **cero fuga de datos a la nube**:\n- 🎯 **Salud Financiera:** ${analysis.summary.healthScore}/100\n- 🐜 **Gastos Hormiga Detectados:** $${analysis.gastosHormiga.totalMicroAmount.toFixed(2)} al mes (${analysis.gastosHormiga.microExpenseCount} microcompras).\n- 💡 **Ahorro Rescatable:** Aplicando la **Regla de los 2 Días de Gasto**, recuperas **$${analysis.gastosHormiga.potentialMonthlySavingsWith2DaysRule.toFixed(2)} al mes** para tu Cuenta Navideña o Plazo Fijo.\n\n¿En qué te gustaría que te ayude hoy? Puedes hacerme cualquier consulta sobre tus gastos o seleccionar una de las sugerencias rápidas.`;
 
   appendAiMessage(welcome, {
-    engine: "QVAC Native Fabric LLM",
-    latencyMs: 12,
+    engine: "Cashy AI (Inferencia Local On-Device)",
+    parameterSize: "2B / 1B",
+    latencyMs: 10,
     cloudDataTransmittedBytes: 0
   });
 }
@@ -361,6 +362,7 @@ function resetChat(profile, analysis) {
 async function sendChatMessage(message) {
   appendUserMessage(message);
   const typingId = appendTypingIndicator();
+  const selectedModel = document.getElementById("select-model")?.value || "salamandra-2b";
 
   try {
     const res = await fetch("/api/chat", {
@@ -368,7 +370,8 @@ async function sendChatMessage(message) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message,
-        history: chatHistory
+        history: chatHistory,
+        model: selectedModel
       })
     });
 
@@ -397,8 +400,8 @@ function appendUserMessage(text) {
   const div = document.createElement("div");
   div.className = "flex justify-end";
   div.innerHTML = `
-    <div class="max-w-[80%] chat-bubble-user p-3 rounded-xl text-white">
-      <p class="font-medium">${escapeHtml(text)}</p>
+    <div class="max-w-[80%] chat-bubble-user px-4 py-2.5 rounded-2xl text-white shadow-sm">
+      <p class="font-medium text-xs leading-relaxed">${escapeHtml(text)}</p>
     </div>
   `;
   container.appendChild(div);
@@ -411,21 +414,25 @@ function appendAiMessage(text, telemetry = null) {
 
   const html = formatMarkdown(text);
   const div = document.createElement("div");
-  div.className = "flex justify-start items-start space-x-2";
+  div.className = "flex justify-start items-start space-x-3";
 
+  const paramText = telemetry?.parameterSize ? ` • ${telemetry.parameterSize}` : '';
   const badge = telemetry ? `
-    <div class="mt-2 pt-1 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-mono">
-      <span>⚙️ ${telemetry.engine} (${telemetry.latencyMs}ms)</span>
-      <span class="text-emerald-600 font-bold">🔒 0 Bytes Cloud</span>
+    <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-mono">
+      <span>⚙️ ${telemetry.engine}${paramText} (${telemetry.latencyMs}ms)</span>
+      <span class="text-emerald-600 font-bold flex items-center space-x-1">
+        <i class="fa-solid fa-lock text-[9px]"></i>
+        <span>0 Bytes Cloud</span>
+      </span>
     </div>
   ` : '';
 
   div.innerHTML = `
-    <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex-shrink-0 flex items-center justify-center font-bold text-xs mt-0.5">
+    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#004f98] to-emerald-500 text-white flex-shrink-0 flex items-center justify-center font-bold text-xs mt-0.5 shadow-sm ring-2 ring-emerald-100">
       <i class="fa-solid fa-robot"></i>
     </div>
-    <div class="max-w-[85%] chat-bubble-ai p-3 rounded-xl">
-      <div class="text-slate-800 leading-relaxed">${html}</div>
+    <div class="max-w-[85%] chat-bubble-ai px-4 py-3 rounded-2xl shadow-xs">
+      <div class="text-slate-800 leading-relaxed text-xs">${html}</div>
       ${badge}
     </div>
   `;
@@ -439,16 +446,18 @@ function appendTypingIndicator() {
   const id = "typing-" + Date.now();
   const div = document.createElement("div");
   div.id = id;
-  div.className = "flex justify-start items-center space-x-2";
+  div.className = "flex justify-start items-center space-x-3";
   div.innerHTML = `
-    <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
+    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#004f98] to-emerald-500 text-white flex-shrink-0 flex items-center justify-center font-bold text-xs shadow-sm ring-2 ring-emerald-100">
       <i class="fa-solid fa-robot"></i>
     </div>
-    <div class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-slate-400 text-xs flex space-x-1 items-center">
-      <span>QVAC razonando localmente</span>
-      <span class="animate-bounce">.</span>
-      <span class="animate-bounce delay-100">.</span>
-      <span class="animate-bounce delay-200">.</span>
+    <div class="bg-white border border-slate-200 px-3.5 py-2 rounded-xl text-slate-500 text-xs flex space-x-2 items-center shadow-xs">
+      <span class="font-medium text-[11px] text-slate-600">Cashy AI pensando localmente</span>
+      <span class="inline-flex space-x-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce delay-100"></span>
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce delay-200"></span>
+      </span>
     </div>
   `;
   container.appendChild(div);

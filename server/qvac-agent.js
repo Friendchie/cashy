@@ -12,7 +12,9 @@ import { buildLlmPromptContext } from "./financial-analyzer.js";
 
 class QvacFinancialAgent {
   constructor() {
-    this.modelName = "llama-3.2-1b";
+    this.primaryModel = "llama-3.2-1b";  // Modelo ultraligero de alta velocidad
+    this.fallbackModel = "llama-3.2-1b";
+    this.modelName = this.primaryModel;
     this.isLoaded = false;
     this.inferenceCount = 0;
     this.totalInferenceTimeMs = 0;
@@ -23,8 +25,6 @@ class QvacFinancialAgent {
    * Inicializa o verifica el modelo.
    */
   async initializeModel() {
-    // Al utilizar el CLI server de QVAC (npx @qvac/cli serve --openai),
-    // el modelo se carga on-demand. Retornamos estado listo de inmediato.
     this.isLoaded = true;
     return { status: "ready", modelId: this.modelName };
   }
@@ -42,22 +42,22 @@ class QvacFinancialAgent {
    */
   getSystemPrompt(analysis, profileName) {
     const context = buildLlmPromptContext(analysis, profileName);
-    return `Eres CajaLocal AI, el Asesor Financiero Inteligente, Privado y Autónomo de Caja de Ahorros ("El Banco de la Familia Panameña").
-Operas 100% de manera local y descentralizada. NINGÚN DATO BANCARIO SALE DEL DISPOSITIVO.
+    return `Eres Cashy AI, el Asesor Financiero Inteligente, Privado y Autónomo de Caja de Ahorros ("El Banco de la Familia Panameña").
+Operas 100% de manera local y descentralizada con QVAC en el dispositivo del cliente. NINGÚN DATO BANCARIO SALE DEL DISPOSITIVO.
 
 Tu misión es orientar al cliente basándote en sus transacciones, para:
 1. Detectar y frenar fugas de capital por GASTOS HORMIGA.
-2. Proponer estrategias conductuales claras.
-3. Orientarlo en la REGLA 60-25-15 (60% Necesidades, 25% Deseos, 15% Ahorro). Si te preguntan por otras reglas, puedes sugerir la regla 50-30-20, la regla del 1%, o el método Kakebo.
+2. Proponer estrategias conductuales claras (como la regla de 2 días de ocio a la semana).
+3. Orientarlo en la REGLA 60-25-15 (60% Necesidades, 25% Deseos, 15% Ahorro). Si te preguntan por otras reglas de ahorro o presupuesto, puedes sugerir la regla 50-30-20, el método Kakebo, o el sistema de sobres.
 4. Recomendar productos de Caja de Ahorros si es oportuno (Cuenta de Ahorro Navideño, Plazo Fijo, Hipoteca).
 
 Contexto financiero verificado en este dispositivo:
 ${context}
 
-Directrices de respuesta CRÍTICAS:
-- Eres una IA generativa. Responde genuinamente a las preguntas del usuario basándote en el contexto.
+Directrices de respuesta:
+- Responde directamente al usuario de manera conversacional, cálida y profesional.
 - NO uses la palabra "aumento" cuando te refieras a guardar dinero o generar intereses; usa siempre las palabras "ahorro", "rendimiento", o "ganancia".
-- Habla en español con tono cálido, profesional y empático.
+- Habla en español panameño formal y empático.
 - Sé conciso, estructurado y directo.`;
   }
 
@@ -67,8 +67,9 @@ Directrices de respuesta CRÍTICAS:
    * @param {object} analysis Diagnóstico financiero local
    * @param {string} profileName Nombre del perfil
    * @param {Array} conversationHistory Historial previo
+   * @param {string} requestedModel Modelo solicitado (opcional: 'salamandra-2b', 'bitnet-3b', 'llama-3.2-1b')
    */
-  async askAdvisor(userMessage, analysis, profileName, conversationHistory = []) {
+  async askAdvisor(userMessage, analysis, profileName, conversationHistory = [], requestedModel = null) {
     const startTime = Date.now();
     this.inferenceCount++;
 
@@ -86,50 +87,67 @@ Directrices de respuesta CRÍTICAS:
       { role: "user", content: userMessage }
     ];
 
+    let targetModel = requestedModel || this.primaryModel;
     let reply = "";
-    let engineType = "QVAC Local OpenAI Server (Llama 3.2 1B)";
+    let effectiveModel = targetModel;
+    let engineType = `QVAC Local Engine (${targetModel})`;
 
-    try {
-      console.log(`[QVAC Local AI] Consultando a http://127.0.0.1:11434/v1/chat/completions`);
-      
+    const queryModel = async (modelToUse, timeoutMs = 15000) => {
+      console.log(`[QVAC Local AI] Consultando modelo ${modelToUse} en http://127.0.0.1:11434/v1/chat/completions`);
       const response = await fetch("http://127.0.0.1:11434/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: this.modelName,
+          model: modelToUse,
           messages: messages,
           temperature: 0.7,
-          max_tokens: 300 // Respuesta concisa
-        })
+          max_tokens: 350
+        }),
+        signal: AbortSignal.timeout(timeoutMs)
       });
-
       if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return await response.json();
+    };
+
+    try {
+      let data = null;
+      try {
+        data = await queryModel(targetModel, 15000);
+      } catch (errPrimary) {
+        if (targetModel !== this.fallbackModel) {
+          console.warn(`[QVAC Local AI] Modelo ${targetModel} en proceso de descarga o espera (${errPrimary.message}). Aplicando respuesta con ${this.fallbackModel}...`);
+          effectiveModel = this.fallbackModel;
+          engineType = `QVAC Local Engine (${effectiveModel} - Respaldo Ultraligero)`;
+          data = await queryModel(this.fallbackModel, 30000);
+        } else {
+          throw errPrimary;
+        }
       }
 
-      const data = await response.json();
-      
-      if (data.choices && data.choices.length > 0) {
+      if (data && data.choices && data.choices.length > 0) {
         reply = data.choices[0].message.content;
       } else {
         reply = "Lo siento, el modelo local no devolvió una respuesta válida.";
       }
-      
     } catch (err) {
-      console.error("[QVAC Local AI] Error al conectar con el servidor local:", err.message);
-      reply = "Lo siento, hubo un error de conexión con el motor de IA local de QVAC. Por favor, asegúrate de que el servidor está corriendo (npx @qvac/cli serve --openai -p 11434).";
+      console.error("[QVAC Local AI] Error en consulta local:", err.message);
+      reply = "Lo siento, hubo un error de conexión con el motor de IA local de QVAC. Por favor, asegúrate de que el servidor esté activo.";
     }
 
     const durationMs = Date.now() - startTime;
     this.totalInferenceTimeMs += durationMs;
+    this.modelName = effectiveModel;
 
     return {
       reply,
       telemetry: {
         engine: engineType,
-        model: this.modelName,
+        model: effectiveModel,
+        parameterSize: effectiveModel.includes("2b") ? "2 Billones (2B)" : effectiveModel.includes("3b") ? "3 Billones (3B)" : "1 Billón (1B)",
         latencyMs: durationMs,
-        deviceLocation: "Localhost (Client Device)",
+        deviceLocation: "Localhost (Dispositivo del Cliente)",
         cloudDataTransmittedBytes: 0, // Auditado: 0 bytes a la nube
         inferenceCount: this.inferenceCount,
         averageLatencyMs: Math.round(this.totalInferenceTimeMs / this.inferenceCount)
@@ -140,15 +158,17 @@ Directrices de respuesta CRÍTICAS:
   getTelemetryStatus() {
     return {
       qvacActive: true,
-      modelName: this.modelName,
+      primaryModel: this.primaryModel,
+      activeModel: this.modelName,
       isModelLoaded: this.isLoaded,
       cloudBytesSent: this.cloudBytesTransmitted, // 0
       inferenceCount: this.inferenceCount,
       averageLatencyMs: this.inferenceCount > 0 ? Math.round(this.totalInferenceTimeMs / this.inferenceCount) : 0,
-      privacyGuarantee: "100% Local Inference via QVAC Local Server. Zero External Network Requests."
+      privacyGuarantee: "Inferencia 100% On-Device con QVAC SDK. Cero solicitudes de red externas."
     };
   }
 }
 
 export const qvacAgent = new QvacFinancialAgent();
+
 

@@ -1,6 +1,6 @@
 /**
  * index.js
- * Servidor local de banca en línea de CajaLocal AI impulsado por QVAC SDK.
+ * Servidor local de banca en línea de Cashy AI impulsado por QVAC SDK.
  * Proporciona los servicios locales de análisis financiero, inferencia on-device y telemetría de auditoría.
  */
 
@@ -107,7 +107,7 @@ app.post("/api/analyze-custom", (req, res) => {
  */
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message, history } = req.body;
+    const { message, history, model } = req.body;
     if (!message) {
       return res.status(400).json({ success: false, error: "El mensaje no puede estar vacío." });
     }
@@ -119,7 +119,8 @@ app.post("/api/chat", async (req, res) => {
       message,
       analysis,
       currentProfile.name,
-      history || []
+      history || [],
+      model || null
     );
 
     res.json({
@@ -135,6 +136,22 @@ app.post("/api/chat", async (req, res) => {
       details: err.message
     });
   }
+});
+
+/**
+ * GET /api/models
+ * Retorna los modelos disponibles en el runtime local QVAC.
+ */
+app.get("/api/models", (req, res) => {
+  res.json({
+    success: true,
+    activeModel: qvacAgent.modelName,
+    availableModels: [
+      { id: "salamandra-2b", name: "Salamandra 2B (Nativo en Español)", params: "2B", recommended: true },
+      { id: "bitnet-3b", name: "BitNet 3B (Alta Capacidad)", params: "3B", recommended: false },
+      { id: "llama-3.2-1b", name: "Llama 3.2 1B (Ultraligero Móvil)", params: "1B", recommended: false }
+    ]
+  });
 });
 
 /**
@@ -164,7 +181,7 @@ app.post("/api/qvac/load-model", async (req, res) => {
 // Iniciar servidor local
 app.listen(PORT, async () => {
   console.log(`\n======================================================`);
-  console.log(`🏦 CajaLocal AI - Banca en Línea & Asesor QVAC`);
+  console.log(`🏦 Cashy AI - Banca en Línea & Asesor Inteligente QVAC`);
   console.log(`🔒 Inferencia 100% On-Device | Zero Data Leakage`);
   console.log(`🌐 Servidor iniciado en: http://localhost:${PORT}`);
   console.log(`======================================================\n`);

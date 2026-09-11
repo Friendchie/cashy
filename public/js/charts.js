@@ -1,6 +1,6 @@
 /**
  * charts.js
- * Módulo de visualizaciones interactivas con Chart.js para CajaLocal AI.
+ * Módulo de visualizaciones interactivas con Chart.js para Cashy AI.
  */
 
 let categoryChartInstance = null;
