@@ -68,6 +68,9 @@
 ```
 
 ### Funcionalidades Clave:
+* **🛬 Pista de Aterrizaje Quincenal Día a Día (Safe-to-Spend):** Proyecta la evolución del saldo hasta el próximo día de pago (15 o 30 de cada mes en Panamá), calculando el **Gasto Diario Seguro** para garantizar que el cliente no llegue en sobregiro.
+* **🎛️ Simulador Interactivo de Escenarios "What-If":** Sliders interactivos para modelar recortes en microgastos (café, delivery, salidas), recalculando al instante el dinero mensual rescatado y acelerando el cumplimiento de metas de ahorro.
+* **📑 Dictamen Ejecutivo con IA On-Device:** Genera con un solo clic un análisis financiero cualitativo y empático procesado al 100% en el procesador local mediante **Llama 3.2 1B y QVAC SDK**, con telemetría de latencia y certificación de 0 bytes a la nube.
 * **🔍 Detector Inteligente de Gastos Hormiga:** Agrupa y audita compras menores a $15, proyecta la fuga anual y calcula el impacto en el patrimonio familiar.
 * **💡 Regla Conductual de los 2 Días de Gasto:** Recomienda concentrar los antojos y gastos de ocio únicamente en 2 días a la semana (ej. viernes y sábado), eliminando las fugas de lunes a jueves y ahorrando hasta un 65% de estos microgastos.
 * **⚖️ Optimizador de Presupuesto 60-25-15:** Evalúa en tiempo real si el cliente cumple la distribución sana (60% Necesidades Básicas, 25% Deseos y Estilo de Vida, 15% Ahorro e Inversión).
@@ -77,6 +80,7 @@
   * **Abono Inicial Hipotecario:** Estimación del tiempo para alcanzar la cuota inicial de una primera vivienda con Caja de Ahorros.
 * **🤖 Asesor Conversacional On-Device:** Diálogo fluido e interactivo en lenguaje natural que razona sobre el historial del cliente sin que ningún dato salga a internet.
 * **🛡️ Monitor de Auditoría y Soberanía:** Panel en tiempo real para el jurado con telemetría que comprueba que 0 bytes han sido enviados a la nube.
+* **🎯 Guion Oficial y Pitch de Venta:** Consulta [`PITCH_AND_DEMO_SCRIPT.md`](PITCH_AND_DEMO_SCRIPT.md) para el elevator pitch de 90 segundos, el guion del video de 5 minutos y la matriz de objeciones del jurado.
 
 ---
 
