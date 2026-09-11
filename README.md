@@ -80,7 +80,6 @@
   * **Abono Inicial Hipotecario:** Estimación del tiempo para alcanzar la cuota inicial de una primera vivienda con Caja de Ahorros.
 * **🤖 Asesor Conversacional On-Device:** Diálogo fluido e interactivo en lenguaje natural que razona sobre el historial del cliente sin que ningún dato salga a internet.
 * **🛡️ Monitor de Auditoría y Soberanía:** Panel en tiempo real para el jurado con telemetría que comprueba que 0 bytes han sido enviados a la nube.
-* **🎯 Guion Oficial y Pitch de Venta:** Consulta [`PITCH_AND_DEMO_SCRIPT.md`](PITCH_AND_DEMO_SCRIPT.md) para el elevator pitch de 90 segundos, el guion del video de 5 minutos y la matriz de objeciones del jurado.
 
 ---
 
